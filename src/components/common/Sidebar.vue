@@ -96,25 +96,34 @@
         },
         methods: {
         	handleSelect(key, keyPath) {
+        		var vm = this;
         		var path;
     	    	if(keyPath.length >=2){
     	    		path = keyPath[1]
     	    	}else{
     	    		path = keyPath[0]
     	    	}
-    	    	var tabsLength = this.$store.state.editableTabs.length;
-    	    	console.log("tabsLength:"+tabsLength)
-    	    	console.log("editableTabsValue:"+this.$store.state.editableTabsValue)
+    	    	var tabsLength = vm.$store.state.editableTabs.length;
     	    	const editableTab = {
 			      	title: path,
 			      	name: tabsLength+'',
 			      	path: path
     	    	}
     	    	
-    	    	this.$store.dispatch('addTabs', editableTab);
-    	    	this.$store.dispatch('changeTabactiveindex', tabsLength);
-    	    	this.$store.dispatch('changeCurrentView', path);
-    	    	console.log("editableTabsValue:"+this.$store.state.editableTabsValue)
+    	    	var addNewTab = true;
+    	    	
+    	    	vm.editableTabs.forEach(function(tab,index){
+	          		if (tab.path === path) {
+	          			addNewTab = false;
+	          			return true;
+		            }
+	          	})
+    	    	
+    	    	if(addNewTab){
+    	    		vm.$store.dispatch('addTabs', editableTab);
+	    	    	vm.$store.dispatch('changeTabactiveindex', tabsLength);
+	    	    	vm.$store.dispatch('changeCurrentView', path);
+    	    	}
     	    },
         }
     }

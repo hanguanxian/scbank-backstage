@@ -61,34 +61,37 @@
     	          		if (tab.name === targetIndex) {
     	          			vm.$store.dispatch('removeTabs', index);
     		              	var nextTab = vm.editableTabs[index + 1] || vm.editableTabs[index - 1];
-    		              	console.log(nextTab)
     		              	if (nextTab) {
     		                	activeIndex = nextTab.name;
-    		                	console.log("activeIndex:"+activeIndex)
     		                	vm.$store.dispatch('changeCurrentView', nextTab.path);
     		                	vm.$store.dispatch('changeTabactiveindex', activeIndex);
     		              	}
     		            }
     	          	})
     	        }else{
+    	        	var closedIndex;
     	        	vm.editableTabs.forEach(function(tab,index){
     	          		if (tab.name === targetIndex) {
+    	          			closedIndex = index;
     		              	vm.$store.dispatch('removeTabs', index);
     		            }
     	          	})
     	        	
     	        	vm.editableTabs.forEach(function(tab,index){
-    	          		tab.name = parseInt(tab.name) - 1 + "";
+    	        		if(index >= closedIndex){
+    	        			tab.name = parseInt(tab.name) - 1 + "";
+    	        		}
     	          	})
-    	        	
-    	        	vm.$store.dispatch('changeTabactiveindex', activeIndex - 1);
+    	        	if(activeIndex >=　 closedIndex){
+    	        		vm.$store.dispatch('changeTabactiveindex', activeIndex - 1);
+    	        	}
     	        }
     	    },
     	    tabToggle(tab){
     	    	var vm = this;
-    	    	console.log(tab.label)
     	    	vm.editableTabs.forEach(function(item,index){
     	    		if(item.title == tab.label){
+    	    			vm.$store.dispatch('changeTabactiveindex', index);
     	    			vm.$store.dispatch('changeCurrentView', item.path);
     	    		}
     	    	})
