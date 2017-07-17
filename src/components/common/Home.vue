@@ -24,9 +24,14 @@
     import vHead from './Header.vue';
     import vSidebar from './Sidebar.vue';
     import Readme from '../page/Readme.vue';
+    import BaseCharts from '../page/BaseCharts.vue';
     import VueTable from '../page/VueTable.vue';
     import BaseTable from '../page/BaseTable.vue';
-    import DragList from '../page/DragList.vue'
+    import DragList from '../page/DragList.vue';
+    import VueEditor from '../page/VueEditor.vue';
+    import BaseForm from '../page/BaseForm.vue';
+    import Markdown from '../page/Markdown.vue';
+    import Upload from '../page/Upload.vue';
     export default {
         data () {
           	return {
@@ -50,41 +55,53 @@
             'readme' : Readme,
             'vuetable' : VueTable, 
             'basetable' : BaseTable,
-            'drag' : DragList
+            'drag' : DragList,
+            'basecharts' : BaseCharts,
+            'vueeditor' : VueEditor,
+            'upload' : Upload,
+            'markdown' : Markdown,
+            'baseform' : BaseForm
         },
         methods: {
     	    removeTab(targetIndex) {
     	    	var vm = this;
-    	        var activeIndex = vm.$store.state.editableTabsValue;
-    	        if (activeIndex === targetIndex) {
+    	    	if(vm.editableTabs.length == 1){//最后一个tab不可删除
+    	    		return;
+    	    	}
+    	    	
+    	        var activeIndex = vm.editableTabsValue;
+    	        if (activeIndex === targetIndex) {//若删除的是当前选中的tab,则往后的tab全部index-1,选中状态赋给相邻的tab
     	          	vm.editableTabs.forEach(function(tab,index){
     	          		if (tab.name === targetIndex) {
     	          			vm.$store.dispatch('removeTabs', index);
-    		              	var nextTab = vm.editableTabs[index + 1] || vm.editableTabs[index - 1];
+    	          			for(var i = index; i < vm.editableTabs.length; i++){
+				        		vm.editableTabs[i].name = parseInt(vm.editableTabs[i].name) - 1 + "";
+    	          			}
+    	          			
+    		              	var nextTab = vm.editableTabs[index] || vm.editableTabs[index - 1];
     		              	if (nextTab) {
     		                	activeIndex = nextTab.name;
     		                	vm.$store.dispatch('changeCurrentView', nextTab.path);
     		                	vm.$store.dispatch('changeTabactiveindex', activeIndex);
     		              	}
+    		              	return true;
     		            }
     	          	})
-    	        }else{
-    	        	var closedIndex;
+    	        }else{////若删除的不是当前选中的tab,则选中tab不变,但选中的tab往后的tab全部index-1
     	        	vm.editableTabs.forEach(function(tab,index){
     	          		if (tab.name === targetIndex) {
-    	          			closedIndex = index;
     		              	vm.$store.dispatch('removeTabs', index);
+    		              	for(var i = index; i < vm.editableTabs.length; i++){
+				        		vm.editableTabs[i].name = parseInt(vm.editableTabs[i].name) - 1 + "";
+    	          			}
+    		              	
+    		              	if(activeIndex >=　 index){
+				        		vm.$store.dispatch('changeTabactiveindex', activeIndex - 1);
+				        	}
+    		              	
+    		              	return true;
     		            }
     	          	})
-    	        	
-    	        	vm.editableTabs.forEach(function(tab,index){
-    	        		if(index >= closedIndex){
-    	        			tab.name = parseInt(tab.name) - 1 + "";
-    	        		}
-    	          	})
-    	        	if(activeIndex >=　 closedIndex){
-    	        		vm.$store.dispatch('changeTabactiveindex', activeIndex - 1);
-    	        	}
     	        }
     	    },
     	    tabToggle(tab){

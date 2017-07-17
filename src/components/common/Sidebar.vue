@@ -103,7 +103,7 @@
     	    	}else{
     	    		path = keyPath[0]
     	    	}
-    	    	var tabsLength = vm.$store.state.editableTabs.length;
+    	    	var tabsLength = vm.editableTabs.length;
     	    	const editableTab = {
 			      	title: path,
 			      	name: tabsLength+'',
@@ -114,6 +114,8 @@
     	    	
     	    	vm.editableTabs.forEach(function(tab,index){
 	          		if (tab.path === path) {
+	          			vm.$store.dispatch('changeTabactiveindex', index);
+	          			vm.$store.dispatch('changeCurrentView', tab.path);
 	          			addNewTab = false;
 	          			return true;
 		            }
