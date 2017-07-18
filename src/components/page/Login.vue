@@ -10,9 +10,8 @@
                     <el-input type="password" placeholder="password" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')"></el-input>
                 </el-form-item>
                 <div class="login-btn">
-                    <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+                    <el-button type="primary" @click.prevent="submitForm('ruleForm')">登录</el-button>
                 </div>
-                <p style="font-size:12px;line-height:30px;color:#999;">Tips : 用户名和密码随便填。</p>
             </el-form>
         </div>
     </div>
@@ -22,6 +21,7 @@
     export default {
         data: function(){
             return {
+                formUrl:'/interface/index.do',
                 ruleForm: {
                     username: '',
                     password: ''
@@ -41,8 +41,10 @@
                 const self = this;
                 self.$refs[formName].validate((valid) => {
                     if (valid) {
-                        localStorage.setItem('ms_username',self.ruleForm.username);
-                        self.$router.push('/readme');
+                        //self.$axios.post(self.formUrl, self.ruleForm).then((res) => {
+                            localStorage.setItem('ms_username',self.ruleForm.username);
+                            self.$router.push('/readme');
+                        //});
                     } else {
                         console.log('error submit!!');
                         return false;

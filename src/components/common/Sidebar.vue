@@ -1,19 +1,19 @@
 <template>
     <div class="sidebar">
         <el-menu :default-active="onRoutes" class="el-menu-vertical-demo" unique-opened  @select="handleSelect">
-            <template v-for="item in items">
-                <template v-if="item.subs">
-                    <el-submenu :index="item.index">
-                        <template slot="title"><i :class="item.icon"></i>{{ item.title }}</template>
-                        <el-menu-item v-for="(subItem,i) in item.subs" :key="i" :index="subItem.index">{{ subItem.title }}
+            <template v-for="item in userMenu">
+                <template v-if="item.roles">
+                    <el-submenu :index="item.menu.menuCode">
+                        <template slot="title">{{ item.menu.menuName }}</template>
+                        <el-menu-item v-for="(subItem,i) in item.roles" :key="i" :route="subItem" :index="subItem.roleCode">{{ subItem.roleName }}
                         </el-menu-item>
                     </el-submenu>
                 </template>
-                <template v-else>
-                    <el-menu-item :index="item.index">
-                        <i :class="item.icon"></i>{{ item.title }}
+                <!-- <template v-else>
+                    <el-menu-item index="item.menu.autoId">
+                        {{ item.menu.roleName }}
                     </el-menu-item>
-                </template>
+                </template> -->
             </template>
         </el-menu>
     </div>
@@ -23,62 +23,12 @@
     export default {
         data() {
             return {
-                items: [
-                    {
-                        icon: 'el-icon-setting',
-                        index: 'readme',
-                        title: '自述'
-                    },
-                    {
-                        icon: 'el-icon-menu',
-                        index: '2',
-                        title: '表格',
-                        subs: [
-                            {
-                                index: 'basetable',
-                                title: '基础表格'
-                            },
-                            {
-                                index: 'vuetable',
-                                title: 'Vue表格组件'
-                            }
-                        ]
-                    },
-                    {
-                        icon: 'el-icon-date',
-                        index: '3',
-                        title: '表单',
-                        subs: [
-                            {
-                                index: 'baseform',
-                                title: '基本表单'
-                            },
-                            {
-                                index: 'vueeditor',
-                                title: '编辑器'
-                            },
-                            {
-                                index: 'markdown',
-                                title: 'markdown'
-                            },
-                            {
-                                index: 'upload',
-                                title: '文件上传'
-                            }
-                        ]
-                    },
-                    {
-                        icon: 'el-icon-star-on',
-                        index: 'basecharts',
-                        title: '图表'
-                    },
-                    {
-                        icon: 'el-icon-upload2',
-                        index: 'drag',
-                        title: '拖拽'
-                    }
-                ]
+                userMenuUrl: '../../../static/userMenu.json',//列表页面
+                userMenu: []
             }
+        },
+        created(){
+            this.getData();
         },
         computed:{
             onRoutes(){
@@ -95,23 +45,29 @@
 	        }
         },
         methods: {
-        	handleSelect(key, keyPath) {
+            getData() {
+              this.$axios.get(this.userMenuUrl).then((res) => {
+                this.userMenu = res.data.userMenu;
+              })
+            },
+        	handleSelect(key, keyPath,selectComponent) {
         		var vm = this;
         		var path;
     	    	if(keyPath.length >=2){
-    	    		path = keyPath[1]
+    	    		path = keyPath[1];
     	    	}else{
-    	    		path = keyPath[0]
+    	    		path = keyPath[0];
     	    	}
+                path = path.toLowerCase().replace(/\_/g, '');
     	    	var tabsLength = vm.editableTabs.length;
     	    	const editableTab = {
-			      	title: path,
+			      	title: selectComponent.route.roleName,
 			      	name: tabsLength+'',
 			      	path: path
     	    	}
-    	    	
+
     	    	var addNewTab = true;
-    	    	
+
     	    	vm.editableTabs.forEach(function(tab,index){
 	          		if (tab.path === path) {
 	          			vm.$store.dispatch('changeTabactiveindex', index);
@@ -120,7 +76,7 @@
 	          			return true;
 		            }
 	          	})
-    	    	
+
     	    	if(addNewTab){
     	    		vm.$store.dispatch('addTabs', editableTab);
 	    	    	vm.$store.dispatch('changeTabactiveindex', tabsLength);

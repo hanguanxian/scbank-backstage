@@ -16,36 +16,36 @@ export default new Router({
           component: resolve => require(['../components/page/Readme.vue'], resolve)
         },
         {
-          path: '/basetable',
-          component: resolve => require(['../components/page/BaseTable.vue'], resolve)
+          path: '/roleactvipappend',
+          component: resolve => require(['../components/page/RoleActVipAppend.vue'], resolve)
         },
         {
-          path: '/vuetable',
-          component: resolve => require(['../components/page/VueTable.vue'], resolve) // vue-datasource组件
+          path: '/roleacttargetrate',
+          component: resolve => require(['../components/page/RoleActTargetRate.vue'], resolve) // vue-datasource组件
         },
         {
-          path: '/baseform',
-          component: resolve => require(['../components/page/BaseForm.vue'], resolve)
+          path: '/roleregularadvertising',
+          component: resolve => require(['../components/page/RoleRegularAdvertising.vue'], resolve)
         },
         {
-          path: '/vueeditor',
-          component: resolve => require(['../components/page/VueEditor.vue'], resolve) // Vue-Quill-Editor组件
+          path: '/roleregulardqtarget',
+          component: resolve => require(['../components/page/RoleRegularDqtarget.vue'], resolve) // Vue-Quill-Editor组件
         },
         {
-          path: '/markdown',
-          component: resolve => require(['../components/page/Markdown.vue'], resolve) // Vue-Quill-Editor组件
+          path: '/roleregulardqtargetexamine',
+          component: resolve => require(['../components/page/RoleRegularDqtargetExamine.vue'], resolve) // Vue-Quill-Editor组件
         },
         {
-          path: '/upload',
-          component: resolve => require(['../components/page/Upload.vue'], resolve) // Vue-Core-Image-Upload组件
+          path: '/rolepaymentwithdrawconfig',
+          component: resolve => require(['../components/page/RolePaymentWithdrawConfig.vue'], resolve) // Vue-Core-Image-Upload组件
         },
         {
-          path: '/basecharts',
-          component: resolve => require(['../components/page/BaseCharts.vue'], resolve) // vue-schart组件
+          path: '/rolepaymentorder',
+          component: resolve => require(['../components/page/RolePaymentOrder.vue'], resolve) // vue-schart组件
         },
         {
-          path: '/drag',
-          component: resolve => require(['../components/page/DragList.vue'], resolve) // 拖拽列表组件
+          path: '/rolepaymentordersplit',
+          component: resolve => require(['../components/page/RolePaymentOrderSplit.vue'], resolve) // 拖拽列表组件
         }
       ]
     },
