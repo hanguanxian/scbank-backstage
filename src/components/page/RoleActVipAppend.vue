@@ -2,11 +2,11 @@
 <div class="table">
   <div class="crumbs">
     <el-breadcrumb separator="/">
-      <el-breadcrumb-item><i class="el-icon-menu"></i>活动管理</el-breadcrumb-item>
+      <el-breadcrumb-item>&nbsp;活动管理</el-breadcrumb-item>
       <el-breadcrumb-item>固收加息活动列表</el-breadcrumb-item>
     </el-breadcrumb>
   </div>
-  <el-form :inline="true" :model="searchForm" ref="searchForm" class="demo-form-inline">
+  <el-form :inline="true" :model="searchForm" ref="searchForm" class="query-form el-form--inline">
     <el-form-item>
       <el-input v-model="searchForm.actAutoId" placeholder="活动ID"></el-input>
     </el-form-item>
@@ -29,8 +29,8 @@
     </el-form-item>
   </el-form>
 
-  <el-table :data="tableData" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
-    <el-table-column type="selection" width="55"></el-table-column>
+  <el-table :data="tableData" stripe style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
+    <!-- <el-table-column type="selection" width="55"></el-table-column> -->
     <el-table-column prop="actAutoId" label="活动ID">
     </el-table-column>
     <el-table-column prop="actName" label="活动名称">
@@ -43,9 +43,9 @@
     </el-table-column>
     <el-table-column prop="appendDayCount" label="加息有效天数">
     </el-table-column>
-    <el-table-column prop="beginDate" label="有效期开始">
+    <el-table-column prop="beginDate" width="120" label="有效期开始">
     </el-table-column>
-    <el-table-column prop="endDate" label="有效期截止">
+    <el-table-column prop="endDate" width="120" label="有效期截止">
     </el-table-column>
     <el-table-column prop="isOnsale" label="是否上架">
     </el-table-column>
@@ -59,9 +59,9 @@
     </el-table-column>
     <el-table-column prop="remark" label="备注">
     </el-table-column>
-    <el-table-column prop="createTime" label="创建时间">
+    <el-table-column prop="createTime" width="170" label="创建时间">
     </el-table-column>
-    <el-table-column label="操作" width="200">
+    <el-table-column label="操作" width="200" fixed="right">
       <template scope="scope">
         <el-button size="small"
             @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -91,7 +91,7 @@
       <el-form-item prop="appendDayCount" label="加息有效天数:" :rules="{ required: true, message: '必填', trigger: 'blur'}">
         <el-input v-model="dialogForm.appendDayCount"></el-input>
       </el-form-item>
-      <el-form-item prop="beginDate" label="有效时间" :rules="{ required: true, message: '必填', trigger: 'blur'}">
+      <el-form-item prop="beginDate" label="有效时间" :rules="{type: 'date', required: true, message: '必填', trigger: 'blur'}">
         <el-col :span="11">
           <el-date-picker type="date" placeholder="有效期开始" v-model="dialogForm.beginDate" style="width: 100%;"></el-date-picker>
         </el-col>
@@ -115,7 +115,8 @@
         <el-input v-model="dialogForm.amountLowerLimit"></el-input>
       </el-form-item>
       <el-form-item prop="mark" label="备注" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <el-input type="textarea" v-model="dialogForm.mark"></el-input>
+        <!-- <el-input type="textarea" v-model="dialogForm.mark"></el-input> -->
+        <quill-editor ref="myTextEditor" v-model="dialogForm.mark"></quill-editor>
       </el-form-item>
       <el-form-item>
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -127,6 +128,7 @@
 </template>
 
 <script>
+import { quillEditor } from 'vue-quill-editor';
 export default {
   data() {
     return {
@@ -158,7 +160,7 @@ export default {
           termLowerLimit:"",
           amountUpperLimit:"",
           amountLowerLimit:"",
-          mark:""
+          mark:"<p>Hello BBK</p>"
       },
       listUrl: '../../../static/act_vip_append_list.json',//列表页面
       searchFormUrl: "/interface/act/act_vip_append_list.do",//搜索的链接
@@ -197,17 +199,31 @@ export default {
   created() {
     this.getData();
   },
+  components: {
+      quillEditor
+  },
+  computed: {
+      editor() {
+          return this.$refs.myTextEditor.quillEditor;
+      },
+      setEndDate(){
+          if(this.dialogForm.endDate === "" || this.dialogForm.endDate < this.dialogForm.beginDate) {
+              this.dialogForm.endDate = this.dialogForm.beginDate;
+          }
+          return this.dialogForm.endDate;
+      }
+  },
   methods: {
-    handleCurrentChange(val) {
+    onEditorChange({ editor, html, text }) {
+      this.dialogForm.mark = html;
+    },handleCurrentChange(val) {
       this.cur_page = val;
       this.getData();
-    },
-    searchSubmit(formName) {
+    },searchSubmit(formName) {
         this.$axios.post(this.searchFormUrl, this.searchForm).then((res) => {
             self.tableData = res.data;
         });
-    },
-    dialogSubmit(formName) {
+    },dialogSubmit(formName) {
         this.$refs[formName].validate((valid) => {
             if (valid) {
                 if(this.updateBtn){//是否是更新操作
@@ -250,16 +266,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.handle-box {
-  margin-bottom: 20px;
-}
-
-.el-table .cell,
-.el-table th>div {
-  text-align: center;
-  padding-left: 15px;
-  padding-right: 15px;
-}
-</style>

@@ -7,7 +7,7 @@ Vue.use(Vuex)
 
 const state = {
     editableTabs: [{
-      	title: 'readme',
+      	title: '主页',
       	name: '0',
       	path: 'readme'
     }],
@@ -16,7 +16,7 @@ const state = {
 };
 
 export default new Vuex.Store({
-	state,
+	  state,
   	mutations,
   	actions
 })

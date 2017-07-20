@@ -113,9 +113,14 @@
     	    		}
     	    	})
     	    }
-        },
-        created () {
-            console.log(this.router);
         }
     }
 </script>
+<style scoped>
+    .content {
+        padding: 20px;
+    }
+    .content .table {
+        padding: 10px;
+    }
+</style>

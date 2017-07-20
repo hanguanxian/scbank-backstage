@@ -82,7 +82,7 @@
 	    	    	vm.$store.dispatch('changeTabactiveindex', tabsLength);
 	    	    	vm.$store.dispatch('changeCurrentView', path);
     	    	}
-    	    },
+    	    }
         }
     }
 </script>
@@ -95,9 +95,14 @@
         left: 0;
         top: 70px;
         bottom:0;
-        background: #2E363F;
     }
     .sidebar > ul {
         height:100%;
+    }
+    .el-menu li {
+        list-style: none;
+        border-bottom: 1px solid rgb(223, 236, 235);
+    }
+    .el-menu-item, .el-submenu__title {
     }
 </style>

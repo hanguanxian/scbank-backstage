@@ -46,10 +46,12 @@
         font-size: 22px;
         line-height: 70px;
         color: #fff;
+        background-color: #3c8dbc;
     }
     .header .logo{
         float: left;
         width:250px;
+        background-color: #367fa9;
         text-align: center;
     }
     .user-info {
