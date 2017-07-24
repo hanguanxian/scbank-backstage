@@ -1,23 +1,24 @@
 <template>
 <div class="table">
-  <div class="crumbs">
-    <el-breadcrumb separator="/">
-      <el-breadcrumb-item>&nbsp;活动管理</el-breadcrumb-item>
-      <el-breadcrumb-item>固收加息活动列表</el-breadcrumb-item>
-    </el-breadcrumb>
-  </div>
+  <!-- 搜索区域开始 -->
   <el-form :inline="true" :model="searchForm" ref="searchForm" class="query-form el-form--inline">
-    <el-form-item>
-      <el-input v-model="searchForm.actAutoId" placeholder="活动ID"></el-input>
-    </el-form-item>
-    <el-form-item>
-      <el-input v-model="searchForm.actName" placeholder="活动名称"></el-input>
-    </el-form-item>
-    <el-form-item>
-      <el-select v-model="searchForm.isOnsale" placeholder="是否上架">
-        <el-option label="是" value="1"></el-option>
-        <el-option label="否" value="0"></el-option>
-      </el-select>
+    <el-form-item v-for="(item, index) in tablebConfig.columns" v-if="item.inSearch" :key="index">
+        <template v-if="item.type == 'date'">
+            <el-date-picker type="date" v-model="searchForm[item.key]" style="width: 100%;">
+            </el-date-picker>
+        </template>
+        <template v-else-if="item.type == 'select'">
+            <el-select v-model="searchForm[item.key]" clearable placeholder="是否上架">
+                <el-option v-for="option in item.selectOptions"
+                    :key="option.value"
+                    :label="option.label"
+                    :value="option.value">
+                  </el-option>
+            </el-select>
+        </template>
+        <template v-else>
+            <el-input v-model="dialogForm[item.key]"></el-input>
+        </template>
     </el-form-item>
     <el-form-item>
       <el-date-picker v-model="searchFormDate" type="daterange" align="right" placeholder="选择日期范围" :picker-options="pickerOptions">
@@ -28,146 +29,206 @@
       <el-button type="primary" icon="plus" @click="dialogVisible = true">新增</el-button>
     </el-form-item>
   </el-form>
-
+  <!-- 搜索区域结束 -->
+  <!-- 页面table开始 -->
   <el-table :data="tableData" stripe style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
-    <!-- <el-table-column type="selection" width="55"></el-table-column> -->
-    <el-table-column prop="actAutoId" label="活动ID">
+    <el-table-column type="selection"></el-table-column> <!-- 勾选框 -->
+    <el-table-column v-for="(column, index) in tablebConfig.columns" :key="index" :prop="column.key" :label="column.name" :width="column.width">
     </el-table-column>
-    <el-table-column prop="actName" label="活动名称">
-    </el-table-column>
-    <el-table-column prop="appendLable" label="加息标签">
-    </el-table-column>
-    <el-table-column prop="appendYearRate" label="加息年利率(%)">
-    </el-table-column>
-    <el-table-column prop="appendDayRate" label="加息天利率(%)">
-    </el-table-column>
-    <el-table-column prop="appendDayCount" label="加息有效天数">
-    </el-table-column>
-    <el-table-column prop="beginDate" width="120" label="有效期开始">
-    </el-table-column>
-    <el-table-column prop="endDate" width="120" label="有效期截止">
-    </el-table-column>
-    <el-table-column prop="isOnsale" label="是否上架">
-    </el-table-column>
-    <el-table-column prop="termUpperLimit" label="产品上限期限">
-    </el-table-column>
-    <el-table-column prop="termLowerLimit" label="产品下限期限">
-    </el-table-column>
-    <el-table-column prop="amountUpperLimit" label="起购金额上限">
-    </el-table-column>
-    <el-table-column prop="amountLowerLimit" label="起购金额下限">
-    </el-table-column>
-    <el-table-column prop="remark" label="备注">
-    </el-table-column>
-    <el-table-column prop="createTime" width="170" label="创建时间">
-    </el-table-column>
-    <el-table-column label="操作" width="200" fixed="right">
-      <template scope="scope">
-        <el-button size="small"
-            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-        <el-button size="small"
-            @click="modifyOnsale(scope.row,1)">上架</el-button>
-        <el-button size="small"
-            @click="modifyOnsale(scope.row,0)">下架</el-button>
-      </template>
+    <el-table-column :label="tablebConfig.tableActions.name" :width="tablebConfig.tableActions.width" :fixed="tablebConfig.tableActions.fixed">
+        <template scope="scope">
+           <el-button v-for="(button, index) in tablebConfig.tableActions.buttons"
+                :key="index" size="small"
+                @click="button.event(scope.$index, scope.row)">{{ button.name }}</el-button>
+        </template>
     </el-table-column>
   </el-table>
+  <!-- 分页开始 -->
   <div class="pagination">
     <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
     </el-pagination>
   </div>
-
+  <!-- 分页结束 -->
+ <!-- 页面table结束 -->
+ <!-- 新建 编辑 页面弹出开始 -->
   <el-dialog title="固收加息活动" :visible.sync="dialogVisible">
     <el-form :model="dialogForm" ref="dialogForm" label-width="120px" style="width:500px; margin: 0 auto;">
-      <el-form-item label="活动名称:" prop="actName" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <el-input v-model="dialogForm.actName"></el-input>
-      </el-form-item>
-      <el-form-item prop="appendLable" label="加息标签:" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <el-input v-model="dialogForm.appendLable"></el-input>
-      </el-form-item>
-      <el-form-item prop="appendYearRate" label="加息年利率(%):" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <el-input v-model="dialogForm.appendYearRate"></el-input>
-      </el-form-item>
-      <el-form-item prop="appendDayCount" label="加息有效天数:" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <el-input v-model="dialogForm.appendDayCount"></el-input>
-      </el-form-item>
-      <el-form-item prop="beginDate" label="有效时间" :rules="{type: 'date', required: true, message: '必填', trigger: 'blur'}">
-        <el-col :span="11">
-          <el-date-picker type="date" placeholder="有效期开始" v-model="dialogForm.beginDate" style="width: 100%;"></el-date-picker>
-        </el-col>
-        <el-col class="line" :span="2">&nbsp;</el-col>
-        <el-col :span="11">
-          <el-date-picker type="date" placeholder="有效期截止" v-model="dialogForm.endDate" style="width: 100%;"></el-date-picker>
-        </el-col>
-        <!-- <el-date-picker v-model="dialogFormDate" type="daterange" align="right" placeholder="有效期范围" :picker-options="pickerOptions">
-        </el-date-picker> -->
-      </el-form-item>
-      <el-form-item prop="termUpperLimit" label="产品上限期限:" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <el-input v-model="dialogForm.termUpperLimit"></el-input>
-      </el-form-item>
-      <el-form-item prop="termLowerLimit" label="产品下限期限:" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <el-input v-model="dialogForm.termLowerLimit"></el-input>
-      </el-form-item>
-      <el-form-item prop="amountUpperLimit" label="起购金额上限:" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <el-input v-model="dialogForm.amountUpperLimit"></el-input>
-      </el-form-item>
-      <el-form-item prop="amountLowerLimit" label="起购金额下限:" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <el-input v-model="dialogForm.amountLowerLimit"></el-input>
-      </el-form-item>
-      <el-form-item prop="mark" label="备注" :rules="{ required: true, message: '必填', trigger: 'blur'}">
-        <!-- <el-input type="textarea" v-model="dialogForm.mark"></el-input> -->
-        <quill-editor ref="myTextEditor" v-model="dialogForm.mark"></quill-editor>
+      <el-form-item v-for="(item, index) in tablebConfig.columns" v-if="item.inDialog" :key="index" :label="item.name" :prop="item.key" :rules="item.required == 'no' ? {} : { required: true, message: '必填', trigger: 'blur'}">
+        <template v-if="item.type == 'date'">
+                  <el-date-picker type="date" v-model="dialogForm[item.key]" style="width: 100%;">
+                  </el-date-picker>
+              </template>
+        <template v-else-if="item.type == 'editor'">
+                  <quill-editor ref="myTextEditor" v-model="dialogForm[item.key]"></quill-editor>
+              </template>
+        <template v-else-if="item.type == 'select'">
+                  <el-select v-model="searchForm[item.key]" clearable placeholder="是否上架">
+                      <el-option v-for="option in item.selectOptions"
+                          :key="option.value"
+                          :label="option.label"
+                          :value="option.value">
+                        </el-option>
+                  </el-select>
+              </template>
+        <template v-else>
+                  <el-input v-model="dialogForm[item.key]"></el-input>
+              </template>
       </el-form-item>
       <el-form-item>
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogSubmit('dialogForm')">确 定</el-button>
+        <el-button v-for="(button, index) in tablebConfig.dialogActions.buttons" :key="index" @click="button.event()">{{ button.name }}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
+  <!-- 新建 编辑 页面弹出结束 -->
 </div>
 </template>
 
 <script>
-import { quillEditor } from 'vue-quill-editor';
+import { quillEditor } from 'vue-quill-editor';//富文本编辑器
 export default {
   data() {
+    const self = this;
     return {
-      tableData: [],
-      page: 1,
-      rows: 50,
-      multipleSelection: [],//选中的行
-      searchFormDate: [],//查询框日期
-      updateBtn: false,
+        // tablebConfig 页面展示字段配置
+        //   name 页面字段显示的label文字
+        //   key  取值的key
+        //   insearch 是否在搜索框出现
+        //   inDialog 是否在弹出页面显示
+        //   type 字段输入时的类型 默认inpute  目前有 date select editor inpute
+        //   selectOptions 当type 为select的时候 option的枚举值
+        //   tableActions 表格里面的操作按钮以及事件
+        //   dialogActions 弹出框里面的操作按钮以及事件
+      tablebConfig: {
+        columns: [{
+          name: '活动ID',
+          inSearch: true,
+          key: 'actAutoId'
+        }, {
+          name: '活动名称',
+          inDialog: true,
+          inSearch: true,
+          key: 'actName'
+        }, {
+          name: '加息标签',
+          inDialog: true,
+          key: 'appendLable'
+        }, {
+          name: '加息年利率(%)',
+          inDialog: true,
+          key: 'appendYearRate'
+        }, {
+          name: '加息天利率(%)',
+          inDialog: true,
+          key: 'appendDayRate'
+        }, {
+          name: '加息有效天数',
+          inDialog: true,
+          key: 'appendDayCount'
+        }, {
+          name: '有效期开始',
+          inDialog: true,
+          type: "date",
+          key: 'beginDate'
+        }, {
+          name: '有效期截止',
+          inDialog: true,
+          type: "date",
+          key: 'endDate'
+        }, {
+          name: '是否上架',
+          inSearch: true,
+          type: 'select',
+          selectOptions: [{
+            label: "是",
+            value: "1"
+          }, {
+            label: "否",
+            value: "0"
+          }],
+          key: 'isOnsale'
+        }, {
+          name: '产品上限期限',
+          inDialog: true,
+          key: 'termUpperLimit'
+        }, {
+          name: '产品下限期限',
+          inDialog: true,
+          key: 'termLowerLimit'
+        }, {
+          name: '起购金额上限',
+          inDialog: true,
+          key: 'amountUpperLimit'
+        }, {
+          name: '起购金额下限',
+          inDialog: true,
+          key: 'amountLowerLimit'
+        }, {
+          name: '备注',
+          inDialog: true,
+          key: 'remark'
+        }, {
+          name: '创建时间',
+          key: 'createTime'
+        }],
+        tableActions: {
+          name: '操作',
+          key: 'actions',
+          width: "200",
+          fixed: "right",
+          buttons: [{
+            name: "编辑",
+            event(index, row) {
+              console.log(row);
+            }
+          }, {
+            name: "上架",
+            event(index, row) {
+              console.log("上架");
+            }
+          }, {
+            name: "下架",
+            event(index, row) {
+              console.log("下架");
+            }
+          }]
+        },
+        dialogActions: {
+          buttons: [{
+            name: "取消",
+            event() {
+              console.log();
+            }
+          }, {
+            name: "确定",
+            event(index, row) {
+              console.log("确定");
+            }
+          }]
+        }
+      },
+      tableData: [],//table显示的表格数据
+      multipleSelection: [], //选中的行
+      page: 1,//分页的页数
+      rows: 50,//分页的行数
+      searchFormDate: [], //查询框日期
+      updateBtn: false,//共用弹出框的提交按钮 是新数据还是编辑后的数据
       dialogVisible: false, //编辑框是否显示
       searchForm: {
-          actAutoId:"",
-          actName:"",
-          isOnsale:"",
-          startCreateTime:"",
-          endCreateTime:"",
-          page:"",
-          rows:""
+        actAutoId: "",
+        startCreateTime: "",
+        endCreateTime: "",
+        page: "",
+        rows: ""
       },
       dialogForm: {
-          actAutoId:"",
-          actName:"",
-          appendLable:"",
-          appendYearRate:"",
-          appendDayCount:"",
-          beginDate:"",
-          endDate:"",
-          termUpperLimit:"",
-          termLowerLimit:"",
-          amountUpperLimit:"",
-          amountLowerLimit:"",
-          mark:"<p>Hello BBK</p>"
+        actAutoId: ""
       },
-      listUrl: '../../../static/act_vip_append_list.json',//列表页面
-      searchFormUrl: "/interface/act/act_vip_append_list.do",//搜索的链接
-      newFormUrl:"/interface/act/add_act_vip_append.do",//新建的链接
-      updateFormUrl: "/interface/act/modify_act_vip_append.do",//更新列表的链接
-      modifyOnsaleUrl: "/interface/act/modify_act_vip_append_onsale.do",//上下架的链接
-      pickerOptions: {
+      listUrl: '../../../static/act_vip_append_list.json', //列表页面
+      searchFormUrl: "/interface/act/act_vip_append_list.do", //搜索的链接
+      newFormUrl: "/interface/act/add_act_vip_append.do", //新建的链接
+      updateFormUrl: "/interface/act/modify_act_vip_append.do", //更新列表的链接
+      modifyOnsaleUrl: "/interface/act/modify_act_vip_append_onsale.do", //上下架的链接
+      pickerOptions: {//搜索区域时间快捷键配置
         shortcuts: [{
           text: '最近一周',
           onClick(picker) {
@@ -197,49 +258,56 @@ export default {
     }
   },
   created() {
-    this.getData();
+    this.getData();//进入页面获取数据
   },
   components: {
-      quillEditor
+    quillEditor//富文本组件
   },
   computed: {
-      editor() {
-          return this.$refs.myTextEditor.quillEditor;
-      },
-      setEndDate(){
-          if(this.dialogForm.endDate === "" || this.dialogForm.endDate < this.dialogForm.beginDate) {
-              this.dialogForm.endDate = this.dialogForm.beginDate;
-          }
-          return this.dialogForm.endDate;
+    editor() {
+      return this.$refs.myTextEditor.quillEditor;
+    },
+    setEndDate() {
+      if (this.dialogForm.endDate === "" || this.dialogForm.endDate < this.dialogForm.beginDate) {
+        this.dialogForm.endDate = this.dialogForm.beginDate;
       }
+      return this.dialogForm.endDate;
+    }
   },
   methods: {
-    onEditorChange({ editor, html, text }) {
+    onEditorChange({
+      editor,
+      html,
+      text
+    }) {
       this.dialogForm.mark = html;
-    },handleCurrentChange(val) {
+    },
+    handleCurrentChange(val) {
       this.cur_page = val;
       this.getData();
-    },searchSubmit(formName) {
-        this.$axios.post(this.searchFormUrl, this.searchForm).then((res) => {
-            self.tableData = res.data;
-        });
-    },dialogSubmit(formName) {
-        this.$refs[formName].validate((valid) => {
-            if (valid) {
-                if(this.updateBtn){//是否是更新操作
-                    this.$axios.post(this.updateFormUrl, this.dialogForm).then((res) => {
-                        this.getData();
-                    });
-                } else {
-                    this.$axios.post(this.newFormUrl, this.dialogForm).then((res) => {
-                        this.getData();
-                    });
-                }
-            } else {
-                this.$message('error submit!!');
-                return false;
-            }
-        });
+    },
+    searchSubmit(formName) {
+      this.$axios.post(this.searchFormUrl, this.searchForm).then((res) => {
+        self.tableData = res.data;
+      });
+    },
+    dialogSubmit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (this.updateBtn) { //是否是更新操作
+            this.$axios.post(this.updateFormUrl, this.dialogForm).then((res) => {
+              this.getData();
+            });
+          } else {
+            this.$axios.post(this.newFormUrl, this.dialogForm).then((res) => {
+              this.getData();
+            });
+          }
+        } else {
+          this.$message('error submit!!');
+          return false;
+        }
+      });
     },
     getData() {
       let self = this;
@@ -256,9 +324,12 @@ export default {
       this.updateBtn = true;
     },
     modifyOnsale(row, onsale) {
-        this.$axios.post(this.modifyOnsaleUrl, {actAutoId:row.actAutoId,onsale:onsale}).then((res) => {
-            this.getData();
-        });
+      this.$axios.post(this.modifyOnsaleUrl, {
+        actAutoId: row.actAutoId,
+        onsale: onsale
+      }).then((res) => {
+        this.getData();
+      });
     },
     handleSelectionChange: function(val) {
       this.multipleSelection = val;

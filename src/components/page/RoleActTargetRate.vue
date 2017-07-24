@@ -1,11 +1,5 @@
 <template>
 <div class="table">
-  <div class="crumbs">
-    <el-breadcrumb separator="/">
-      <el-breadcrumb-item>&nbsp;活动管理</el-breadcrumb-item>
-      <el-breadcrumb-item>标的活动列表</el-breadcrumb-item>
-    </el-breadcrumb>
-  </div>
   <el-form :inline="true" :model="searchForm" ref="searchForm" class="query-form el-form--inline">
     <el-form-item>
       <el-input v-model="searchForm.actAutoId" placeholder="活动ID"></el-input>
