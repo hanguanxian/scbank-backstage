@@ -53,26 +53,27 @@
  <!-- 新建 编辑 页面弹出开始 -->
   <el-dialog title="固收加息活动" :visible.sync="dialogVisible">
     <el-form :model="dialogForm" ref="dialogForm" label-width="120px" style="width:500px; margin: 0 auto;">
-      <el-form-item v-for="(item, index) in tablebConfig.columns" v-if="item.inDialog" :key="index" :label="item.name" :prop="item.key" :rules="item.required == 'no' ? {} : { required: true, message: '必填', trigger: 'blur'}">
+      <el-form-item v-for="(item, index) in tablebConfig.columns"
+        v-if="item.inDialog" :key="index" :label="item.name" :prop="item.key"
+        :rules="item.rules == undefined ? defaultRules : item.rules">
         <template v-if="item.type == 'date'">
-                  <el-date-picker type="date" v-model="dialogForm[item.key]" style="width: 100%;">
-                  </el-date-picker>
-              </template>
+              <el-date-picker type="date" v-model="dialogForm[item.key]" style="width: 100%;"></el-date-picker>
+        </template>
         <template v-else-if="item.type == 'editor'">
-                  <quill-editor ref="myTextEditor" v-model="dialogForm[item.key]"></quill-editor>
-              </template>
+              <quill-editor ref="myTextEditor" v-model="dialogForm[item.key]"></quill-editor>
+        </template>
         <template v-else-if="item.type == 'select'">
-                  <el-select v-model="searchForm[item.key]" clearable placeholder="是否上架">
-                      <el-option v-for="option in item.selectOptions"
-                          :key="option.value"
-                          :label="option.label"
-                          :value="option.value">
-                        </el-option>
-                  </el-select>
-              </template>
+              <el-select v-model="searchForm[item.key]" clearable placeholder="是否上架">
+                  <el-option v-for="option in item.selectOptions"
+                      :key="option.value"
+                      :label="option.label"
+                      :value="option.value">
+                    </el-option>
+              </el-select>
+        </template>
         <template v-else>
-                  <el-input v-model="dialogForm[item.key]"></el-input>
-              </template>
+              <el-input v-model="dialogForm[item.key]"></el-input>
+        </template>
       </el-form-item>
       <el-form-item>
         <el-button v-for="(button, index) in tablebConfig.dialogActions.buttons" :key="index" @click="button.event()">{{ button.name }}</el-button>
@@ -115,24 +116,29 @@ export default {
         }, {
           name: '加息年利率(%)',
           inDialog: true,
+          rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
           key: 'appendYearRate'
         }, {
           name: '加息天利率(%)',
           inDialog: true,
+          rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
           key: 'appendDayRate'
         }, {
           name: '加息有效天数',
           inDialog: true,
+          rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
           key: 'appendDayCount'
         }, {
           name: '有效期开始',
           inDialog: true,
           type: "date",
+          rules: { type: 'date', required: true, message: '必填', trigger: 'blur'},
           key: 'beginDate'
         }, {
           name: '有效期截止',
           inDialog: true,
           type: "date",
+          rules: { type: 'date', required: true, message: '必填', trigger: 'blur'},
           key: 'endDate'
         }, {
           name: '是否上架',
@@ -149,18 +155,22 @@ export default {
         }, {
           name: '产品上限期限',
           inDialog: true,
+          rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
           key: 'termUpperLimit'
         }, {
           name: '产品下限期限',
           inDialog: true,
+          rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
           key: 'termLowerLimit'
         }, {
           name: '起购金额上限',
           inDialog: true,
+          rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
           key: 'amountUpperLimit'
         }, {
           name: '起购金额下限',
           inDialog: true,
+          rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
           key: 'amountLowerLimit'
         }, {
           name: '备注',
@@ -178,17 +188,22 @@ export default {
           buttons: [{
             name: "编辑",
             event(index, row) {
-              console.log(row);
+                console.log(row);
+                self.dialogForm = row;
+                self.dialogForm.beginDate = new Date(row.beginDate);
+                self.dialogForm.endDate = new Date(row.endDate);
+                self.dialogVisible = true;
+                self.updateBtn = true;
             }
           }, {
             name: "上架",
             event(index, row) {
-              console.log("上架");
+                self.modifyOnsale(row,1);
             }
           }, {
             name: "下架",
             event(index, row) {
-              console.log("下架");
+                self.modifyOnsale(row,0);
             }
           }]
         },
@@ -196,16 +211,19 @@ export default {
           buttons: [{
             name: "取消",
             event() {
-              console.log();
+              self.dialogForm = {};
+              self.dialogVisible = false;
+              self.updateBtn = false;
             }
           }, {
             name: "确定",
-            event(index, row) {
-              console.log("确定");
+            event() {
+              self.dialogSubmit("dialogForm");
             }
           }]
         }
       },
+      defaultRules: { required: true, message: '必填', trigger: 'blur'},//表单默认校验规则
       tableData: [],//table显示的表格数据
       multipleSelection: [], //选中的行
       page: 1,//分页的页数
@@ -217,12 +235,10 @@ export default {
         actAutoId: "",
         startCreateTime: "",
         endCreateTime: "",
-        page: "",
-        rows: ""
+        page: 1,
+        rows: 50
       },
-      dialogForm: {
-        actAutoId: ""
-      },
+      dialogForm: {},
       listUrl: '../../../static/act_vip_append_list.json', //列表页面
       searchFormUrl: "/interface/act/act_vip_append_list.do", //搜索的链接
       newFormUrl: "/interface/act/add_act_vip_append.do", //新建的链接
@@ -275,11 +291,7 @@ export default {
     }
   },
   methods: {
-    onEditorChange({
-      editor,
-      html,
-      text
-    }) {
+    onEditorChange({ editor, html, text }) {
       this.dialogForm.mark = html;
     },
     handleCurrentChange(val) {
