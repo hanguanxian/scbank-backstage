@@ -1,81 +1,70 @@
 <template>
     <div>
-        <div class="crumbs">
-            <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-date"></i> 表单</el-breadcrumb-item>
-                <el-breadcrumb-item>基本表单</el-breadcrumb-item>
-            </el-breadcrumb>
-        </div>
-        <div class="form-box">
-            <el-form ref="form" :model="form" label-width="80px">
-                <el-form-item label="表单名称">
-                    <el-input v-model="form.name"></el-input>
-                </el-form-item>
-                <el-form-item label="选择器">
-                    <el-select v-model="form.region" placeholder="请选择">
-                        <el-option key="bbk" label="步步高" value="bbk"></el-option>
-                        <el-option key="xtc" label="小天才" value="xtc"></el-option>
-                        <el-option key="imoo" label="imoo" value="imoo"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="日期时间">
-                    <el-col :span="11">
-                        <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;"></el-date-picker>
-                    </el-col>
-                    <el-col class="line" :span="2">-</el-col>
-                    <el-col :span="11">
-                        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
-                    </el-col>
-                </el-form-item>
-                <el-form-item label="选择开关">
-                    <el-switch on-text="" off-text="" v-model="form.delivery"></el-switch>
-                </el-form-item>
-                <el-form-item label="多选框">
-                    <el-checkbox-group v-model="form.type">
-                        <el-checkbox label="步步高" name="type"></el-checkbox>
-                        <el-checkbox label="小天才" name="type"></el-checkbox>
-                        <el-checkbox label="imoo" name="type"></el-checkbox>
-                    </el-checkbox-group>
-                </el-form-item>
-                <el-form-item label="单选框">
-                    <el-radio-group v-model="form.resource">
-                        <el-radio label="步步高"></el-radio>
-                        <el-radio label="小天才"></el-radio>
-                        <el-radio label="imoo"></el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="文本框">
-                    <el-input type="textarea" v-model="form.desc"></el-input>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="onSubmit">提交</el-button>
-                    <el-button>取消</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
-
+        <el-form :model="baseForm" ref="baseForm" :inline="options.inline" :label-width="options.labelWidth" :class="options.formClass">
+          <el-form-item v-for="(item, index) in items"
+            :key="index" :label="item.name" :prop="item.key"
+            :rules="item.rules == undefined ? defaultRules : item.rules">
+            <template v-if="item.type == 'date'">
+                  <el-date-picker type="date" v-model="baseForm[item.key]" style="width: 100%;" :placeholder="item.placeholder"></el-date-picker>
+            </template>
+            <template v-else-if="item.type == 'editor'">
+                  <quill-editor ref="myTextEditor" v-model="baseForm[item.key]"></quill-editor>
+            </template>
+            <template v-else-if="item.type == 'select'">
+                  <el-select v-model="baseForm[item.key]" clearable :placeholder="item.placeholder">
+                      <el-option v-for="option in item.selectOptions"
+                          :key="option.value"
+                          :label="option.label"
+                          :value="option.value">
+                        </el-option>
+                  </el-select>
+            </template>
+            <template v-else>
+                  <el-input v-model="baseForm[item.key]" :placeholder="item.placeholder"></el-input>
+            </template>
+          </el-form-item>
+          <el-form-item>
+            <el-button  @click="onSubmit('baseForm')">{{ submitName }}</el-button>
+          </el-form-item>
+        </el-form>
     </div>
 </template>
 
 <script>
+import { quillEditor } from 'vue-quill-editor';//富文本编辑器
     export default {
+        props: ['childFormItems','childFormOptions'],
         data: function(){
             return {
-                form: {
-                    name: '',
-                    region: '',
-                    date1: '',
-                    date2: '',
-                    delivery: true,
-                    type: ['步步高'],
-                    resource: '小天才',
-                    desc: ''
-                }
+                items: this.childFormItems,
+                submitName: this.childFormOptions.submitName,
+                defaultRules: this.childFormOptions.defaultRules,
+                options: this.childFormOptions,
+                submitUrl: this.childFormOptions.submitUrl,
+                baseForm: {}
             }
         },
+        components: {
+          quillEditor,//富文本组件
+        },
+        computed: {
+          editor() {
+            return this.$refs.myTextEditor.quillEditor;
+          }
+        },
         methods: {
-            onSubmit() {
-                this.$message.success('提交成功！');
+            onSubmit(formName) {
+                this.$refs[formName].validate((valid) => {
+                  if (valid) {
+                      this.$axios.post(this.submitUrl, this.baseForm).then((res) => {
+                        this.$message.success('提交成功！');
+                      });
+                  } else {
+                    this.$message('error submit!!');
+                    return false;
+                  }
+                });
+
             }
         }
     }
