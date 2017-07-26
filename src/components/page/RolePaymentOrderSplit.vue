@@ -1,91 +1,150 @@
 <template>
-    <section class="main">
-        <div class="crumbs">
-            <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-upload2"></i> 拖拽排序</el-breadcrumb-item>
-            </el-breadcrumb>
-        </div>
-        <div class="drag-box-left">
-            <div class="drag-title">未完成</div>
-            <div class="drag-list" draggable="true" 
-                v-for="list in data1" 
-                :data-id="list.id" 
-                @dragstart="dragstartEvent"
-                @dragend="dragendEvent"
-                @dragenter="dragenterEvent"
-                @dragleave="dragleaveEvent"
-                @dragover="dragoverEvent"
-            >{{list.title}}</div>
-        </div>
-        <div class="drag-box-right">
-            <div class="drag-title">已完成</div>
-            <div class="drag-list" draggable="true"
-                v-for="list in data2"
-                :data-id="list.id"
-                @dragstart="dragstartEvent"
-                @dragend="dragendEvent"
-                @dragenter="dragenterEvent"
-                @dragleave="dragleaveEvent"
-                @dragover="dragoverEvent"
-            >{{list.title}}</div>
-        </div>
-        
-    </section>
+    <div>
+        <base-table :child-table-columns="baseTableConfig.columns"
+                    :child-table-options="baseTableConfig.options"
+                    :child-table-actions="baseTableConfig.actions"
+                    @selectedRows="getRows">
+        </base-table>
+    </div>
 </template>
 
 <script>
+import BaseTable from  "./BaseTable.vue"
     export default {
         data() {
             return {
-                dragElement: null,
-                lock: true,
-                data1: [
-                    {id: 1, title: '这里是列表1的标题'},
-                    {id: 2, title: '这里是列表2的标题'},
-                    {id: 3, title: '这里是列表3的标题'},
-                    {id: 4, title: '这里是列表4的标题'},
-                    {id: 5, title: '这里是列表5的标题'},
-                    {id: 6, title: '这里是列表6的标题'},
-                    {id: 7, title: '这里是列表7的标题'}
-                ],
-                data2: [
-                    {id: 1, title: '这里是列表11的标题'},
-                    {id: 2, title: '这里是列表12的标题'},
-                    {id: 3, title: '这里是列表13的标题'},
-                    {id: 4, title: '这里是列表14的标题'}
-                ]
+                baseTableConfig: {
+                  columns: [{
+                    name: '活动ID',
+                    inSearch: true,
+                    key: 'actAutoId'
+                  }, {
+                    name: '活动名称',
+                    inDialog: true,
+                    inSearch: true,
+                    key: 'actName'
+                  }, {
+                    name: '加息标签',
+                    inDialog: true,
+                    key: 'appendLable'
+                  }, {
+                    name: '加息年利率(%)',
+                    inDialog: true,
+                    rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
+                    key: 'appendYearRate'
+                  }, {
+                    name: '加息天利率(%)',
+                    inDialog: true,
+                    rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
+                    key: 'appendDayRate'
+                  }, {
+                    name: '加息有效天数',
+                    inDialog: true,
+                    rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
+                    key: 'appendDayCount'
+                  }, {
+                    name: '有效期开始',
+                    inDialog: true,
+                    type: "date",
+                    rules: { type: 'date', required: true, message: '必填', trigger: 'blur'},
+                    key: 'beginDate'
+                  }, {
+                    name: '有效期截止',
+                    inDialog: true,
+                    type: "date",
+                    rules: { type: 'date', required: true, message: '必填', trigger: 'blur'},
+                    key: 'endDate'
+                  }, {
+                    name: '是否上架',
+                    inSearch: true,
+                    type: 'select',
+                    selectOptions: [{
+                      label: "是",
+                      value: "1"
+                    }, {
+                      label: "否",
+                      value: "0"
+                    }],
+                    key: 'isOnsale'
+                  }, {
+                    name: '产品上限期限',
+                    inDialog: true,
+                    rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
+                    key: 'termUpperLimit'
+                  }, {
+                    name: '产品下限期限',
+                    inDialog: true,
+                    rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
+                    key: 'termLowerLimit'
+                  }, {
+                    name: '起购金额上限',
+                    inDialog: true,
+                    rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
+                    key: 'amountUpperLimit'
+                  }, {
+                    name: '起购金额下限',
+                    inDialog: true,
+                    rules: { type: 'number', required: true, message: '必填', trigger: 'blur'},
+                    key: 'amountLowerLimit'
+                  }, {
+                    name: '备注',
+                    inDialog: true,
+                    key: 'remark'
+                  }, {
+                    name: '创建时间',
+                    key: 'createTime'
+                  }],
+                  options: {
+                      stripe: true,
+                      dataUrl: '../../../static/act_vip_append_list.json'
+                  },
+                  actions: {
+                    name: '操作',
+                    key: 'actions',
+                    width: "200",
+                    fixed: "right",
+                    buttons: [{
+                      name: "编辑",
+                      event(index, row) {
+                          console.log(row);
+                          this.dialogForm = row;
+                          this.dialogForm.beginDate = new Date(row.beginDate);
+                          this.dialogForm.endDate = new Date(row.endDate);
+                          this.dialogVisible = true;
+                          this.updateBtn = true;
+                      }
+                    }, {
+                      name: "上架",
+                      event(index, row) {
+                          this.modifyOnsale(row,1);
+                      }
+                    }, {
+                      name: "下架",
+                      event(index, row) {
+                          this.modifyOnsale(row,0);
+                      }
+                    }]
+                  }
+                }
             }
         },
+        components: {
+          BaseTable
+        },
         methods: {
-            dragstartEvent(ev) {
-                const self = this;
-                self.dragElement = ev.target;
-                ev.target.style.backgroundColor = '#f8f8f8';
-            },
-            dragendEvent(ev) {
-                ev.target.style.backgroundColor = '#fff';
-                ev.preventDefault();
-            },
-            dragenterEvent(ev) {
-                const self = this;
-                if(self.dragElement != ev.target){
-                    ev.target.parentNode.insertBefore(self.dragElement, ev.target);
-                }
-            },
-            dragleaveEvent(ev) {
-                const self = this;
-                if(self.dragElement != ev.target){
-                    if(self.lock && (ev.target == ev.target.parentNode.lastElementChild || ev.target == ev.target.parentNode.lastChild)){
-                        ev.target.parentNode.appendChild(self.dragElement);
-                        self.lock = false;
-                    }else{
-                        self.lock = true;
-                    }
-                }
-            },
-            dragoverEvent(ev) {
-                ev.preventDefault();
-            }
+            modifyOnsale(row, onsale) {
+                console.log(row);
+                return;
+              this.$axios.post(this.modifyOnsaleUrl, {
+                actAutoId: row.actAutoId,
+                onsale: onsale
+              }).then((res) => {
+                this.getData();
+              });
+          },
+          getRows(val){
+              console.log(val);
+          }
         }
     }
 </script>

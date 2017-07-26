@@ -2,7 +2,8 @@
 <div class="table">
   <!-- 搜索区域开始 -->
   <base-form :child-form-items="baseFormConfig.columns"
-             :child-form-options="baseFormConfig.options">
+             :child-form-options="baseFormConfig.options"
+             @submitCallBack="formCallBack">
   </base-form>
 
 </div>
@@ -113,8 +114,10 @@ export default {
   components: {
     BaseForm
   },
-
   methods: {
+      formCallBack(res){
+          console.log(res);
+      }
   }
 }
 </script>
