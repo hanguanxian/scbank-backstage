@@ -1,19 +1,17 @@
 <template>
 <div class="table">
   <!-- 搜索区域开始 -->
-  <base-form :child-form-items="pageConfig.columns.filter(column => column.useType % 5 == 0)" :child-form-options="pageConfig.searchOptions" @submitCallBack="searchCallBack">
+  <base-form :child-form-items="pageConfig.columns.filter(column => column.useType % 5 == 0)" :child-form-options="pageConfig.searchOptions" @submitCallBack="searchCallBack" :child-form-data="{}">
   </base-form>
   <!-- 搜索区域结束 -->
   <!-- 页面table开始 -->
-  <base-table :child-table-columns="pageConfig.columns.filter(column => column.useType % 2 == 0)" :child-table-options="pageConfig.tableOptions" :child-table-actions="pageConfig.tableActions" @selectedRows="getRows">
+  <base-table :child-table-columns="pageConfig.columns.filter(column => column.useType % 2 == 0 || column.useType % 3 == 0)"
+                :child-table-options="pageConfig.tableOptions"
+                :child-table-actions="pageConfig.tableActions"
+                :child-dialog-options="pageConfig.dialogOptions"
+                @selectedRows="getRows">
   </base-table>
   <!-- 页面table结束 -->
-  <!-- 新建 编辑 页面弹出开始 -->
-  <el-dialog title="固收加息活动" :visible.sync="dialogVisible">
-    <base-form :child-form-items="pageConfig.columns.filter(column => column.useType % 3 == 0)" :child-form-options="pageConfig.dialogOptions" :child-form-data="formData" @submitCallBack="dialogCallBack">
-    </base-form>
-  </el-dialog>
-  <!-- 新建 编辑 页面弹出结束 -->
 </div>
 </template>
 
@@ -175,59 +173,38 @@ export default {
           name: '操作',
           key: 'actions',
           width: "200",
-          fixed: "right",
-          buttons: [{
-            name: "编辑",
-            event(row) {
-              console.log(row);
-               self.formData = row;
-            //   self.dialogForm.beginDate = new Date(row.beginDate);
-            //   self.dialogForm.endDate = new Date(row.endDate);
-            self.dialogVisible = true;
-            //   self.updateBtn = true;
-            }
-          }, {
-            name: "上架",
-            event(index, row) {
-              self.modifyOnsale(row, 1);
-            }
-          }, {
-            name: "下架",
-            event(index, row) {
-              self.modifyOnsale(row, 0);
-            }
-          }]
+          fixed: "right"//,
+        //   buttons: [{
+        //     name: "上架",
+        //     event(index, row) {
+        //       self.modifyOnsale(row, 1);
+        //     }
+        //   }, {
+        //     name: "下架",
+        //     event(index, row) {
+        //       self.modifyOnsale(row, 0);
+        //     }
+        //   }]
         },
         tableOptions: {
           stripe: true,
-          dataUrl: '../../../static/act_vip_append_list.json'
+          dataListUrl: '../../../static/act_vip_append_list.json',//表格全部数据请求地址
+          newRowUrl: '/interface/act/add_act_vip_append.do',//表格全部数据请求地址
+          updateRowUrl: "/interface/act/modify_act_vip_append.do", //更新列表的行链接
+          deleteRowUrl: "/interface/act/modify_act_vip_append_onsale.do" //更新列表的行链接
         },
         searchOptions: {
           submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
           formClass: 'query-form', //向表单添加样式
-          showLabel: false,
+          showLabel: false,//是否显示label标签
           inline: true, //输入框是否在一行内
           submitName: '搜索' //提交按钮文字
         },
         dialogOptions: {
-          defaultRules: {
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          }, //表单默认校验规则
-          submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
-          submitName: '确定' //提交按钮文字
+            defaultRules: { required: true, message: '必填', trigger: 'blur'},//表单默认校验规则
+            labelWidth: "130px"
         }
-      },
-      formData: {},
-      searchForm: {},
-      dialogForm: {},
-      dialogVisible: false,
-      listUrl: '../../../static/act_vip_append_list.json', //列表页面
-      searchFormUrl: "/interface/act/act_vip_append_list.do", //搜索的链接
-      newFormUrl: "/interface/act/add_act_vip_append.do", //新建的链接
-      updateFormUrl: "/interface/act/modify_act_vip_append.do", //更新列表的链接
-      modifyOnsaleUrl: "/interface/act/modify_act_vip_append_onsale.do" //上下架的链接
+      }
     }
   },
   components: {
