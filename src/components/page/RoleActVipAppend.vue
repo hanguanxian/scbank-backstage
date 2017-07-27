@@ -11,6 +11,12 @@
                 :child-dialog-options="pageConfig.dialogOptions"
                 @selectedRows="getRows">
   </base-table>
+  <base-table :child-table-columns="pageConfig.columns.filter(column => column.useType % 2 == 0 || column.useType % 3 == 0)"
+                :child-table-options="pageConfig.tableOptions"
+                :child-table-actions="pageConfig.tableActions"
+                :child-dialog-options="pageConfig.dialogOptions"
+                @selectedRows="getRows">
+  </base-table>
   <!-- 页面table结束 -->
 </div>
 </template>
@@ -77,12 +83,6 @@ export default {
         }, {
           name: '加息有效天数',
           useType: 2 * 3,
-          rules: {
-            type: 'number',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
           key: 'appendDayCount'
         }, {
           name: '有效期开始',
@@ -122,42 +122,18 @@ export default {
         }, {
           name: '产品上限期限',
           useType: 2 * 3,
-          rules: {
-            type: 'number',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
           key: 'termUpperLimit'
         }, {
           name: '产品下限期限',
           useType: 2 * 3,
-          rules: {
-            type: 'number',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
           key: 'termLowerLimit'
         }, {
           name: '起购金额上限',
           useType: 2 * 3,
-          rules: {
-            type: 'number',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
           key: 'amountUpperLimit'
         }, {
           name: '起购金额下限',
           useType: 2 * 3,
-          rules: {
-            type: 'number',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
           key: 'amountLowerLimit'
         }, {
           name: '备注',
@@ -173,18 +149,18 @@ export default {
           name: '操作',
           key: 'actions',
           width: "200",
-          fixed: "right"//,
-        //   buttons: [{
-        //     name: "上架",
-        //     event(index, row) {
-        //       self.modifyOnsale(row, 1);
-        //     }
-        //   }, {
-        //     name: "下架",
-        //     event(index, row) {
-        //       self.modifyOnsale(row, 0);
-        //     }
-        //   }]
+          fixed: "right",
+          buttons: [{
+            name: "上架",
+            event(index, row) {
+              self.modifyOnsale(row, 1);
+            }
+          }, {
+            name: "下架",
+            event(index, row) {
+              self.modifyOnsale(row, 0);
+            }
+          }]
         },
         tableOptions: {
           stripe: true,
