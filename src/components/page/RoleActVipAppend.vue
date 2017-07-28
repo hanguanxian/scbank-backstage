@@ -1,34 +1,35 @@
 <template>
 <div class="table">
   <!-- 搜索区域开始 -->
-  <base-form :child-form-items="pageConfig.columns.filter(column => column.useType % 5 == 0)" :child-form-options="pageConfig.searchOptions" @submitCallBack="searchCallBack" :child-form-data="{}">
+  <base-form :child-form-items="searchForm.items" :child-form-options="searchForm.options" @submitCallBack="searchCallBack" :child-form-data="{}">
   </base-form>
   <!-- 搜索区域结束 -->
   <!-- 页面table开始 -->
-  <base-table :child-table-columns="pageConfig.columns.filter(column => column.useType % 2 == 0 || column.useType % 3 == 0)"
-                :child-table-options="pageConfig.tableOptions"
-                :child-table-actions="pageConfig.tableActions"
-                :child-dialog-options="pageConfig.dialogOptions"
-                @selectedRows="getRows">
-  </base-table>
-  <base-table :child-table-columns="pageConfig.columns.filter(column => column.useType % 2 == 0 || column.useType % 3 == 0)"
-                :child-table-options="pageConfig.tableOptions"
-                :child-table-actions="pageConfig.tableActions"
-                :child-dialog-options="pageConfig.dialogOptions"
-                @selectedRows="getRows">
+  <base-table :child-table-columns="tableConfig.columns" :child-table-options="tableConfig.tableOptions" :child-table-actions="tableConfig.tableActions"
+    @selectedRows="getRows">
+    <div slot="topBtns">
+        <group-btns :child-btns="topBtnsConfig"></group-btns>
+    </div>
   </base-table>
   <!-- 页面table结束 -->
+  <!-- 新建 编辑 页面弹出开始 -->
+  <el-dialog :visible.sync="dialogVisible">
+    <base-form :child-form-items="dialogForm.items" :child-form-options="dialogForm.options" :child-form-data="dialogFormData" @submitCallBack="dialogCallBack">
+    </base-form>
+  </el-dialog>
+  <!-- 新建 编辑 页面弹出结束 -->
 </div>
 </template>
 
 <script>
 import BaseForm from "./BaseForm.vue"
 import BaseTable from "./BaseTable.vue"
+import GroupBtns from "./GroupBtns.vue"
 export default {
   data() {
     const self = this;
     return {
-      // tablebConfig 页面展示字段配置
+      // tableConfig 页面展示字段配置
       //   name 页面字段显示的label文字
       //   key  取值的key
       //   insearch 是否在搜索框出现
@@ -38,31 +39,50 @@ export default {
       //   tableActions 表格里面的操作按钮以及事件
       //   dialogActions 弹出框里面的操作按钮以及事件
       //   useType 能被2整除 显示在表格 能被3整除显示在表格新建编辑列表页面 能被5整除显示在查询框
-      pageConfig: {
-        columns: [{
-          name: '活动ID',
-          useType: 2,
-          key: 'actAutoId'
-        }, {
+      searchForm: {
+        items: [{
           name: '活动名称',
-          useType: 2 * 3 * 5,
           placeholder: '活动名称',
           key: 'actName'
-        },{
+        }, {
+          name: '是否上架',
+          placeholder: '是否上架',
+          type: 'select',
+          selectOptions: [{
+            label: "是",
+            value: "1"
+          }, {
+            label: "否",
+            value: "0"
+          }],
+          key: 'isOnsale'
+        }, {
           name: '时间范围',
-          useType: 5,
           type: 'daterange',
           placeholder: '时间范围',
-          daterange:[],
+          daterange: [],
           beginkey: 'beginDate',
           endkey: 'endDate'
+        }],
+        options: {
+          submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
+          formClass: 'query-form', //向表单添加样式
+          showLabel: false, //是否显示label标签
+          inline: true, //输入框是否在一行内
+          submitName: '搜索' //提交按钮文字
+        }
+      },
+      dialogForm: {
+        items: [{
+          name: '活动名称',
+          placeholder: '活动名称',
+          key: 'actName'
         }, {
           name: '加息标签',
-          useType: 2 * 3,
           key: 'appendLable'
         }, {
           name: '加息年利率(%)',
-          useType: 2 * 3,
+          type: 'number',
           rules: {
             type: 'number',
             required: true,
@@ -72,7 +92,7 @@ export default {
           key: 'appendYearRate'
         }, {
           name: '加息天利率(%)',
-          useType: 2 * 3,
+          type: 'number',
           rules: {
             type: 'number',
             required: true,
@@ -82,11 +102,9 @@ export default {
           key: 'appendDayRate'
         }, {
           name: '加息有效天数',
-          useType: 2 * 3,
           key: 'appendDayCount'
         }, {
           name: '有效期开始',
-          useType: 2 * 3,
           type: "date",
           rules: {
             type: 'date',
@@ -97,7 +115,93 @@ export default {
           key: 'beginDate'
         }, {
           name: '有效期截止',
-          useType: 2 * 3,
+          type: "date",
+          rules: {
+            type: 'date',
+            required: true,
+            message: '必填',
+            trigger: 'blur'
+          },
+          key: 'endDate'
+        }, {
+          name: '产品上限期限',
+
+          key: 'termUpperLimit'
+        }, {
+          name: '产品下限期限',
+
+          key: 'termLowerLimit'
+        }, {
+          name: '起购金额上限',
+
+          key: 'amountUpperLimit'
+        }, {
+          name: '起购金额下限',
+
+          key: 'amountLowerLimit'
+        }, {
+          name: '备注',
+
+          type: 'editor',
+          key: 'remark'
+        }],
+        options: {
+          submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
+          defaultRules: {
+            required: true,
+            message: '必填',
+            trigger: 'blur'
+          }, //表单默认校验规则
+          labelWidth: "130px",
+          submitName: '搜索' //提交按钮文字
+        }
+      },
+      tableConfig: {
+        columns: [{
+          name: '活动ID',
+          key: 'actAutoId'
+        }, {
+          name: '活动名称',
+          placeholder: '活动名称',
+          key: 'actName'
+        }, {
+          name: '加息标签',
+          key: 'appendLable'
+        }, {
+          name: '加息年利率(%)',
+          type: 'number',
+          rules: {
+            type: 'number',
+            required: true,
+            message: '必填',
+            trigger: 'blur'
+          },
+          key: 'appendYearRate'
+        }, {
+          name: '加息天利率(%)',
+          type: 'number',
+          rules: {
+            type: 'number',
+            required: true,
+            message: '必填',
+            trigger: 'blur'
+          },
+          key: 'appendDayRate'
+        }, {
+          name: '加息有效天数',
+          key: 'appendDayCount'
+        }, {
+          name: '有效期开始',
+          type: "date",
+          rules: {
+            type: 'date',
+            required: true,
+            message: '必填',
+            trigger: 'blur'
+          },
+          key: 'beginDate'
+        }, {
+          name: '有效期截止',
           type: "date",
           rules: {
             type: 'date',
@@ -108,7 +212,6 @@ export default {
           key: 'endDate'
         }, {
           name: '是否上架',
-          useType: 2 * 5,
           placeholder: '是否上架',
           type: 'select',
           selectOptions: [{
@@ -121,28 +224,22 @@ export default {
           key: 'isOnsale'
         }, {
           name: '产品上限期限',
-          useType: 2 * 3,
           key: 'termUpperLimit'
         }, {
           name: '产品下限期限',
-          useType: 2 * 3,
           key: 'termLowerLimit'
         }, {
           name: '起购金额上限',
-          useType: 2 * 3,
           key: 'amountUpperLimit'
         }, {
           name: '起购金额下限',
-          useType: 2 * 3,
           key: 'amountLowerLimit'
         }, {
           name: '备注',
-          useType: 2 * 3,
           type: 'editor',
           key: 'remark'
         }, {
           name: '创建时间',
-          useType: 2,
           key: 'createTime'
         }],
         tableActions: {
@@ -151,39 +248,58 @@ export default {
           width: "200",
           fixed: "right",
           buttons: [{
+            name: "编辑",
+            event(row) {
+              console.log('编辑');
+              console.log(row);
+              self.dialogVisible = true;
+              self.dialogForm.options.submitUrl = self.updateRowUrl;
+              self.dialogFormData = row;
+            }
+          },{
             name: "上架",
-            event(index, row) {
-              self.modifyOnsale(row, 1);
+            event(row) {
+              console.log('上架');
+              console.log(row);
             }
           }, {
             name: "下架",
-            event(index, row) {
-              self.modifyOnsale(row, 0);
+            event(row) {
+              console.log('下架');
+              console.log(row);
             }
           }]
         },
         tableOptions: {
-          stripe: true,
-          dataListUrl: '../../../static/act_vip_append_list.json',//表格全部数据请求地址
-          newRowUrl: '/interface/act/add_act_vip_append.do',//表格全部数据请求地址
-          updateRowUrl: "/interface/act/modify_act_vip_append.do", //更新列表的行链接
-          deleteRowUrl: "/interface/act/modify_act_vip_append_onsale.do" //更新列表的行链接
-        },
-        searchOptions: {
-          submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
-          formClass: 'query-form', //向表单添加样式
-          showLabel: false,//是否显示label标签
-          inline: true, //输入框是否在一行内
-          submitName: '搜索' //提交按钮文字
-        },
-        dialogOptions: {
-            defaultRules: { required: true, message: '必填', trigger: 'blur'},//表单默认校验规则
-            labelWidth: "130px"
+          page: 1,
+          rows: 50,
+          dataListUrl: '../../../static/act_vip_append_list.json' //表格全部数据请求地址
         }
-      }
+      },
+      topBtnsConfig: [{
+          name: "新建",
+          event() {
+            console.log('新建');
+            self.dialogVisible = true;
+            self.dialogForm.options.submitUrl = self.newRowUrl;
+            self.dialogFormData = {};
+          }
+        },{
+          name: "删除",
+          event() {
+            console.log('删除');
+            console.log();
+          }
+      }],
+      dialogFormData: {},//弹出框formData
+      newRowUrl: '/interface/act/add_act_vip_append.do', //表格全部数据请求地址
+      updateRowUrl: "/interface/act/modify_act_vip_append.do", //更新列表的行链接
+      deleteRowUrl: "/interface/act/modify_act_vip_append_onsale.do", //更新列表的行链接
+      dialogVisible: false
     }
   },
   components: {
+    GroupBtns,
     BaseForm,
     BaseTable //富文本组件
   },

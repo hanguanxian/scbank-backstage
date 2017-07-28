@@ -15,6 +15,9 @@
             <template v-else-if="item.type == 'editor'">
                   <quill-editor ref="myTextEditor" v-model="baseForm[item.key]"></quill-editor>
             </template>
+            <template v-else-if="item.type == 'number'">
+                  <el-input-number v-model="baseForm[item.key]" :controls="false" :placeholder="options.showPlaceholder == false ? '' : item.placeholder"></el-input-number>
+            </template>
             <template v-else-if="item.type == 'select'">
                   <el-select v-model="baseForm[item.key]" clearable :placeholder="options.showPlaceholder == false ? '' : item.placeholder">
                       <el-option v-for="option in item.selectOptions"
