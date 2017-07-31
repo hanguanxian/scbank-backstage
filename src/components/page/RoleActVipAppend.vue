@@ -1,20 +1,30 @@
 <template>
 <div class="table">
   <!-- 搜索区域开始 -->
-  <base-form :child-form-items="searchForm.items" :child-form-options="searchForm.options" @submitCallBack="searchCallBack" :child-form-data="{}">
+  <base-form :child-form-items="searchForm.items"
+            :child-form-options="searchForm.options"
+            @submitCallBack="searchCallBack">
   </base-form>
   <!-- 搜索区域结束 -->
   <!-- 页面table开始 -->
-  <base-table :child-table-columns="tableConfig.columns" :child-table-options="tableConfig.tableOptions" :child-table-actions="tableConfig.tableActions"
-    @selectedRows="getRows">
-    <div slot="topBtns">
-        <group-btns :child-btns="topBtnsConfig"></group-btns>
-    </div>
+  <base-table ref="myTable"
+        :child-table-columns="tableConfig.columns"
+        :child-table-options="tableConfig.tableOptions"
+        :child-table-actions="tableConfig.tableActions"
+        :child-table-data="tableData"
+        @selectedRows="getRows" @rowDBClick="celDBClick">
+        <!-- 顶部工具栏 -->
+        <div slot="topBtns">
+            <group-btns :child-btns="topBtnsConfig"></group-btns>
+        </div>
   </base-table>
   <!-- 页面table结束 -->
   <!-- 新建 编辑 页面弹出开始 -->
   <el-dialog :visible.sync="dialogVisible">
-    <base-form :child-form-items="dialogForm.items" :child-form-options="dialogForm.options" :child-form-data="dialogFormData" @submitCallBack="dialogCallBack">
+    <base-form :child-form-items="dialogForm.items"
+               :child-form-options="dialogForm.options"
+               :child-form-data="dialogFormData"
+               @submitCallBack="dialogCallBack">
     </base-form>
   </el-dialog>
   <!-- 新建 编辑 页面弹出结束 -->
@@ -39,31 +49,11 @@ export default {
       //   tableActions 表格里面的操作按钮以及事件
       //   dialogActions 弹出框里面的操作按钮以及事件
       //   useType 能被2整除 显示在表格 能被3整除显示在表格新建编辑列表页面 能被5整除显示在查询框
+      //查询框配置
       searchForm: {
-        items: [{
-          name: '活动名称',
-          placeholder: '活动名称',
-          key: 'actName'
-        }, {
-          name: '是否上架',
-          placeholder: '是否上架',
-          type: 'select',
-          selectOptions: [{
-            label: "是",
-            value: "1"
-          }, {
-            label: "否",
-            value: "0"
-          }],
-          key: 'isOnsale'
-        }, {
-          name: '时间范围',
-          type: 'daterange',
-          placeholder: '时间范围',
-          daterange: [],
-          beginkey: 'beginDate',
-          endkey: 'endDate'
-        }],
+        items: [{name: '活动名称',placeholder: '活动名称',key: 'actName'},
+                {name: '是否上架',placeholder: '是否上架',type: 'select',selectOptions: [{label: "是",value: "1"},{label: "否",value: "0"}],key: 'isOnsale'},
+                {name: '时间范围',type: 'daterange',placeholder: '时间范围',daterange: [],beginkey: 'beginDate', endkey: 'endDate'}],
         options: {
           submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
           formClass: 'query-form', //向表单添加样式
@@ -72,6 +62,7 @@ export default {
           submitName: '搜索' //提交按钮文字
         }
       },
+      //弹出框配置
       dialogForm: {
         items: [{
           name: '活动名称',
@@ -83,22 +74,12 @@ export default {
         }, {
           name: '加息年利率(%)',
           type: 'number',
-          rules: {
-            type: 'number',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
+          rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'appendYearRate'
         }, {
           name: '加息天利率(%)',
           type: 'number',
-          rules: {
-            type: 'number',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
+          rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'appendDayRate'
         }, {
           name: '加息有效天数',
@@ -106,12 +87,7 @@ export default {
         }, {
           name: '有效期开始',
           type: "date",
-          rules: {
-            type: 'date',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
+          rules: {type: 'date',required: true,message: '必填',trigger: 'blur'},
           key: 'beginDate'
         }, {
           name: '有效期截止',
@@ -125,23 +101,18 @@ export default {
           key: 'endDate'
         }, {
           name: '产品上限期限',
-
           key: 'termUpperLimit'
         }, {
           name: '产品下限期限',
-
           key: 'termLowerLimit'
         }, {
           name: '起购金额上限',
-
           key: 'amountUpperLimit'
         }, {
           name: '起购金额下限',
-
           key: 'amountLowerLimit'
         }, {
           name: '备注',
-
           type: 'editor',
           key: 'remark'
         }],
@@ -152,10 +123,12 @@ export default {
             message: '必填',
             trigger: 'blur'
           }, //表单默认校验规则
+          inline: true, //输入框是否在一行内
           labelWidth: "130px",
           submitName: '搜索' //提交按钮文字
         }
       },
+      //表格配置
       tableConfig: {
         columns: [{
           name: '活动ID',
@@ -214,13 +187,7 @@ export default {
           name: '是否上架',
           placeholder: '是否上架',
           type: 'select',
-          selectOptions: [{
-            label: "是",
-            value: "1"
-          }, {
-            label: "否",
-            value: "0"
-          }],
+          selectOptions: [{label: "是",value: "1"}, {label: "否",value: "0"}],
           key: 'isOnsale'
         }, {
           name: '产品上限期限',
@@ -276,13 +243,14 @@ export default {
           dataListUrl: '../../../static/act_vip_append_list.json' //表格全部数据请求地址
         }
       },
+      //表格顶部按钮区域
       topBtnsConfig: [{
           name: "新建",
           event() {
             console.log('新建');
-            self.dialogVisible = true;
             self.dialogForm.options.submitUrl = self.newRowUrl;
             self.dialogFormData = {};
+            self.dialogVisible = true;
           }
         },{
           name: "删除",
@@ -291,10 +259,12 @@ export default {
             console.log();
           }
       }],
-      dialogFormData: {},//弹出框formData
       newRowUrl: '/interface/act/add_act_vip_append.do', //表格全部数据请求地址
       updateRowUrl: "/interface/act/modify_act_vip_append.do", //更新列表的行链接
       deleteRowUrl: "/interface/act/modify_act_vip_append_onsale.do", //更新列表的行链接
+      dialogFormData: {},//弹出框formData
+      selectedTableRows:[],//选中的table 行
+      tableData: [],//让搜索框的数据赋值到表格
       dialogVisible: false
     }
   },
@@ -304,13 +274,24 @@ export default {
     BaseTable //富文本组件
   },
   methods: {
-    getRows(val) {
-      console.log('getRows');
-      console.log(val);
+    getRows(value) {
+      this.selectedTableRows = value;
+      console.log(value);
     },
     searchCallBack(res) {
       console.log('searchCallBack');
       console.log(res);
+      let self = this;
+      self.$axios.get("../../../static/act_vip_append_list.json", {
+        page: self.page,
+        rows: self.rows,
+      }).then((res) => {
+        self.tableData = res.data;
+      })
+    },
+    celDBClick(value) {
+        this.$refs.myTable.getData();
+      console.log(value);
     },
     dialogCallBack(res) {
       console.log('dialogCallBack');

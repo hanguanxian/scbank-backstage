@@ -3,8 +3,9 @@
         <el-menu :default-active="onRoutes" class="el-menu-vertical-demo" unique-opened  @select="handleSelect">
             <template v-for="item in userMenu">
                 <template v-if="item.roles">
-                    <el-submenu :index="item.menu.menuCode">
-                        <template slot="title">{{ item.menu.menuName }}</template>
+                    <el-submenu :index="item.menu.menuCode" >
+                        <template slot="title"><i class="el-icon-menu"></i>{{ item.menu.menuName }}</template>
+
                         <el-menu-item v-for="(subItem,i) in item.roles" :key="i" :route="subItem" :index="subItem.roleCode">{{ subItem.roleName }}
                         </el-menu-item>
                     </el-submenu>

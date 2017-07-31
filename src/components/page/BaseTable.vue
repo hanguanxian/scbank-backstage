@@ -3,7 +3,13 @@
         <div>
             <slot name="topBtns"></slot>
         </div>
-        <el-table :data="tableData" :stripe="options.stripe" style="width: 100%" @selection-change="handleSelectionChange" @cell-click="cellClick" :highlight-current-row="true" >
+        <el-table :data="tableData" :stripe="options.stripe" border style="width: 100%"
+                    @selection-change="selectionChange"
+                    @cell-dblclick="cellDBClick"
+                    @cell-click="cellClick"
+                    @row-click="rowClick"
+                    @row-dblclick="rowDBClick"
+                    :highlight-current-row="true" >
           <el-table-column type="selection"></el-table-column> <!-- 勾选框 -->
           <el-table-column v-for="(column, index) in columns" :key="index" :prop="column.key" :label="column.name" :width="column.width">
           </el-table-column>
@@ -15,28 +21,34 @@
               </template>
           </el-table-column>
         </el-table>
-
+        <div>
+            <slot name="bottomBtns"></slot>
+        </div>
         <div class="pagination">
           <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
           </el-pagination>
         </div>
-
     </div>
 </template>
 
 <script>
     export default {
-        props: ['childTableColumns','childTableOptions',"childTableActions"],
+        props: ['childTableColumns','childTableOptions',"childTableActions","childTableData"],
         data: function(){
+            const self = this;
             return {
-                columns:  this.childTableColumns,
-                options: this.childTableOptions,
-                tableActions: this.childTableActions,
-                dataListUrl: this.childTableOptions.dataListUrl,
-                page:  this.childTableOptions.page,
-                rows:  this.childTableOptions.rows,
-                multipleSelection: [], //选中的行
-                tableData: []
+                columns:  self.childTableColumns,
+                options: self.childTableOptions,
+                tableActions: self.childTableActions,
+                dataListUrl: self.childTableOptions.dataListUrl,
+                page:  self.childTableOptions.page || 1,
+                rows:  self.childTableOptions.rows || 50,
+                multipleSelection: [] //选中的行
+            }
+        },
+        computed: {
+            tableData(){
+                return this.childTableData || [];
             }
         },
         created() {
@@ -52,36 +64,25 @@
                 self.tableData = res.data;
               })
             },
-            // newRow(){//新建表格数据
-            //     let self = this;
-            //     self.dialogVisible = true;
-            //     self.dialogOptions.submitUrl = self.newRowUrl;
-            //     self.formData = {};
-            // },
-            // edit(index, row){//编辑表格数据
-            //     let self = this;
-            //     self.dialogVisible = true;
-            //     self.dialogOptions.submitUrl = self.updateRowUrl;
-            //     self.formData = row;
-            // },
-            // delete(index, row){//编辑表格数据
-            //     let self = this;
-            //     //self.$axios.post(self.options.deleteRowUrl, {id: row.id}).then((res) => {
-            //         self.$message.success('删除成功！');
-            //     //});
-            // },
             handleCurrentChange(val) {//翻页
               this.page = val;
               this.getData();
             },
-            cellClick(row, column, cell){
-                console.log(row);
-                console.log(column);
-                console.log(row[column.property]);
+            cellDBClick(row, column, cell){
+                this.$emit('cellDBClick', row[column.property],cell);
             },
-            handleSelectionChange: function(val) {//选中表格数据
+            cellClick(row, column, cell){
+                this.$emit('cellClick', row[column.property],cell);
+            },
+            rowClick(row, event, column){
+                this.$emit('rowClick', row);
+            },
+            rowDBClick(row, event){
+                this.$emit('rowDBClick', row);
+            },
+            selectionChange: function(val) {//选中表格数据
                 this.multipleSelection = val;
-                this.$emit('selectedRows', [val]);
+                this.$emit('selectedRows', val);
             }
         }
     }

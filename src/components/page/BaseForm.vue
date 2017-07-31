@@ -97,7 +97,7 @@ Date.prototype.Format = function (fmt) { //时间format 函数
         },
         computed: {
             baseForm(){
-                return this.childFormData;
+                return this.childFormData || {};
             },
             editor() {
                 return this.$refs.myTextEditor.quillEditor;
@@ -108,7 +108,7 @@ Date.prototype.Format = function (fmt) { //时间format 函数
                 this.baseForm[item.beginkey] = item.daterange[0];
                 this.baseForm[item.endkey] = item.daterange[1];
             },
-            setFormData(){
+            setFormData(){//把time 类型的转换为标准时间格式
                 let self = this;
                 self.items.filter(function(item) {
                     for (var key in self.baseForm) {
@@ -120,7 +120,7 @@ Date.prototype.Format = function (fmt) { //时间format 函数
                     }
                 })
             },
-            onSubmit(formName) {
+            onSubmit(formName) {//表单提交 会去掉多余的不在初始items里面的字段
                 let self = this;
                 self.setFormData();
                 self.$refs[formName].validate((valid) => {
@@ -138,7 +138,7 @@ Date.prototype.Format = function (fmt) { //时间format 函数
                           }
                       })
                       this.baseForm = form;
-                      self.$emit('submitCallBack', [form]);
+                      self.$emit('submitCallBack', form);
                     //   self.$axios.post(self.childFormOptions.submitUrl, self.baseForm).then((res) => {
                     //     self.$message.success('提交成功！');
                     //   });
