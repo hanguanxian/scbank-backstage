@@ -16,7 +16,7 @@
                   <quill-editor ref="myTextEditor" v-model="baseForm[item.key]"></quill-editor>
             </template>
             <template v-else-if="item.type == 'number'">
-                  <el-input-number v-model="baseForm[item.key]" :controls="false" :placeholder="options.showPlaceholder == false ? '' : item.placeholder"></el-input-number>
+                  <el-input-number style="vertical-align: middle;" :debounce="800" v-model="baseForm[item.key]" :controls="false" :placeholder="options.showPlaceholder == false ? '' : item.placeholder"></el-input-number>
             </template>
             <template v-else-if="item.type == 'select'">
                   <el-select v-model="baseForm[item.key]" clearable :placeholder="options.showPlaceholder == false ? '' : item.placeholder">
@@ -32,7 +32,7 @@
             </template>
           </el-form-item>
           <el-form-item>
-            <el-button  @click="onSubmit('baseForm')">{{ submitName || '确定' }}</el-button>
+            <el-button :icon="options.submitIcon" @click="onSubmit('baseForm')">{{ submitName || '确定' }}</el-button>
           </el-form-item>
         </el-form>
     </div>

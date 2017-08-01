@@ -116,7 +116,7 @@ a{text-decoration: none}
 }
 .query-form {
     padding: 25px 15px 0 15px;
-    background-color: #EEF6F6;
+    background-color: #f5f5f5;
     margin-bottom: 20px;
     border-radius: 8px;
 }
@@ -129,4 +129,20 @@ a{text-decoration: none}
   text-align: center;
   padding-left: 10px;
   padding-right: 10px;
+}
+
+.login-wrap{
+    background: rgba(56, 157, 170, 0.82);
+}
+.plugins-tips{
+    background: #eef1f6;
+}
+.plugins-tips a{
+    color: #20a0ff;
+}
+.el-upload--text em {
+    color: #20a0ff;
+}
+.pure-button{
+    background: #20a0ff;
 }

@@ -15,9 +15,11 @@
           </el-table-column>
           <el-table-column :label="tableActions.name" :width="tableActions.width" :fixed="tableActions.fixed">
               <template scope="scope">
-                 <el-button v-for="(button, index) in tableActions.buttons"
-                      :key="index" size="small"
-                      @click="button.event(scope.row)">{{ button.name }}</el-button>
+                  <div class="tableAction">
+                     <el-button v-for="(button, index) in tableActions.buttons"
+                          :key="index" size="small"
+                          @click="button.event(scope.row)" class="el-table-button"><i class="menu-icon fa" :class="button.icon"></i>{{ button.name }}</el-button>
+                  </div>
               </template>
           </el-table-column>
         </el-table>
@@ -43,12 +45,13 @@
                 dataListUrl: self.childTableOptions.dataListUrl,
                 page:  self.childTableOptions.page || 1,
                 rows:  self.childTableOptions.rows || 50,
-                multipleSelection: [] //选中的行
+                multipleSelection: [], //选中的行
+                tableData: []
             }
         },
-        computed: {
-            tableData(){
-                return this.childTableData || [];
+        watch: {
+            tableData: function(){
+                return this.childTableData
             }
         },
         created() {
@@ -87,3 +90,11 @@
         }
     }
 </script>
+<style scoped>
+    .el-table-button {
+        margin: 5px;
+    }
+    .el-table .cell .tableAction  {
+        text-align: left;
+    }
+</style>

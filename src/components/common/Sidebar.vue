@@ -1,12 +1,14 @@
 <template>
     <div class="sidebar">
+
         <el-menu :default-active="onRoutes" class="el-menu-vertical-demo" unique-opened  @select="handleSelect">
             <template v-for="item in userMenu">
                 <template v-if="item.roles">
                     <el-submenu :index="item.menu.menuCode" >
-                        <template slot="title"><i class="el-icon-menu"></i>{{ item.menu.menuName }}</template>
+                        <template slot="title"><i class="fa fa-bars"></i>{{ item.menu.menuName }}</template>
 
-                        <el-menu-item v-for="(subItem,i) in item.roles" :key="i" :route="subItem" :index="subItem.roleCode">{{ subItem.roleName }}
+                        <el-menu-item v-for="(subItem,i) in item.roles" :key="i" :route="subItem" :index="subItem.roleCode">
+                            <i class="menu-icon fa fa-caret-right"></i>{{ subItem.roleName }}
                         </el-menu-item>
                     </el-submenu>
                 </template>
@@ -89,21 +91,37 @@
 </script>
 
 <style scoped>
+    .fa {
+      margin-right: 10px;
+    }
     .sidebar{
         display: block;
         position: absolute;
         width: 250px;
         left: 0;
-        top: 70px;
+        top: 60px;
         bottom:0;
     }
     .sidebar > ul {
         height:100%;
+        background-color: #F2F2F2;
     }
-    .el-menu li {
+    .el-menu .el-menu-item {
+        border-bottom: 1px solid #E5E5E5;
+        color: #585858;
+        background-color: #F5F5F5;
+    }
+    .el-menu .el-menu-item.is-active {
+        background-color: #fff;
+    }
+    .el-menu .el-menu-item:last-child {
+        border-bottom: none;
+    }
+    .el-menu>li.el-submenu {
         list-style: none;
-        border-bottom: 1px solid rgb(223, 236, 235);
+        border-bottom: 1px solid #E5E5E5;
     }
     .el-menu-item, .el-submenu__title {
+
     }
 </style>

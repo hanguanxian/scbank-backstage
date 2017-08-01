@@ -20,7 +20,7 @@
   </base-table>
   <!-- 页面table结束 -->
   <!-- 新建 编辑 页面弹出开始 -->
-  <el-dialog :visible.sync="dialogVisible">
+  <el-dialog :visible.sync="dialogVisible" size="large">
     <base-form :child-form-items="dialogForm.items"
                :child-form-options="dialogForm.options"
                :child-form-data="dialogFormData"
@@ -56,6 +56,7 @@ export default {
                 {name: '时间范围',type: 'daterange',placeholder: '时间范围',daterange: [],beginkey: 'beginDate', endkey: 'endDate'}],
         options: {
           submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
+          submitIcon: "search",//搜索按钮
           formClass: 'query-form', //向表单添加样式
           showLabel: false, //是否显示label标签
           inline: true, //输入框是否在一行内
@@ -212,10 +213,11 @@ export default {
         tableActions: {
           name: '操作',
           key: 'actions',
-          width: "200",
+          width: "220",
           fixed: "right",
           buttons: [{
             name: "编辑",
+            icon: "fa-pencil",
             event(row) {
               console.log('编辑');
               console.log(row);
@@ -225,12 +227,14 @@ export default {
             }
           },{
             name: "上架",
+            icon: "fa-hand-o-up",
             event(row) {
               console.log('上架');
               console.log(row);
             }
           }, {
             name: "下架",
+            icon: "fa-hand-o-down",
             event(row) {
               console.log('下架');
               console.log(row);

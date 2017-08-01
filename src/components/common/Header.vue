@@ -4,7 +4,7 @@
         <div class="user-info">
             <el-dropdown trigger="click" @command="handleCommand">
                 <span class="el-dropdown-link">
-                    <img class="user-logo" src="../../../static/img/img.jpg">
+                    <img class="user-logo" src="../../../static/images/avatars/avatar4.png">
                     {{username}}
                 </span>
                 <el-dropdown-menu slot="dropdown">
@@ -42,11 +42,11 @@
         position: relative;
         box-sizing: border-box;
         width: 100%;
-        height: 70px;
+        height: 60px;
         font-size: 22px;
-        line-height: 70px;
+        line-height: 60px;
         color: #fff;
-        background-color: #3c8dbc;
+        background-color: #438EB9;
     }
     .header .logo{
         float: left;
@@ -71,7 +71,7 @@
     .user-info .user-logo{
         position: absolute;
         left:0;
-        top:15px;
+        top:8px;
         width:40px;
         height:40px;
         border-radius: 50%;
