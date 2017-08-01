@@ -84,6 +84,7 @@ export default {
           key: 'appendDayRate'
         }, {
           name: '加息有效天数',
+          type: 'number',
           rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'appendDayCount'
         }, {
@@ -98,18 +99,22 @@ export default {
           key: 'endDate'
         }, {
           name: '产品上限期限',
+          type: 'number',
           rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'termUpperLimit'
         }, {
           name: '产品下限期限',
+          type: 'number',
           rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'termLowerLimit'
         }, {
           name: '起购金额上限',
+          type: 'number',
           rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'amountUpperLimit'
         }, {
           name: '起购金额下限',
+          type: 'number',
           rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'amountLowerLimit'
         }, {
