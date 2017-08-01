@@ -38,9 +38,7 @@ a{text-decoration: none}
 .el-table tr:hover{
     background: #f6faff;
 }
-.el-table {
-    border-radius: 8px;
-}
+
 .mgb20{
     margin-bottom: 20px;
 }
@@ -117,8 +115,8 @@ a{text-decoration: none}
 .query-form {
     padding: 25px 15px 0 15px;
     background-color: #f5f5f5;
+    border: 1px solid #E5E5E5;
     margin-bottom: 20px;
-    border-radius: 8px;
 }
 .handle-box {
   margin-bottom: 20px;

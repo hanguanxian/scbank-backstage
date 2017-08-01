@@ -107,15 +107,13 @@
         background-color: #F2F2F2;
     }
     .el-menu .el-menu-item {
-        border-bottom: 1px solid #E5E5E5;
+        border-top: 1px solid #E5E5E5;
+        border-right: 1px solid #F2F2F2;
         color: #585858;
-        background-color: #F5F5F5;
+        background-color: #fffdfd;
     }
     .el-menu .el-menu-item.is-active {
         background-color: #fff;
-    }
-    .el-menu .el-menu-item:last-child {
-        border-bottom: none;
     }
     .el-menu>li.el-submenu {
         list-style: none;

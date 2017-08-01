@@ -12,7 +12,7 @@
         :child-table-options="tableConfig.tableOptions"
         :child-table-actions="tableConfig.tableActions"
         :child-table-data="tableData"
-        @selectedRows="getRows" @rowDBClick="celDBClick">
+        @selectedRows="getRows" @rowDBClick="rowDBClick">
         <!-- 顶部工具栏 -->
         <div slot="topBtns">
             <group-btns :child-btns="topBtnsConfig"></group-btns>
@@ -84,6 +84,7 @@ export default {
           key: 'appendDayRate'
         }, {
           name: '加息有效天数',
+          rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'appendDayCount'
         }, {
           name: '有效期开始',
@@ -93,24 +94,23 @@ export default {
         }, {
           name: '有效期截止',
           type: "date",
-          rules: {
-            type: 'date',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
+          rules: {type: 'date',required: true,message: '必填',trigger: 'blur'},
           key: 'endDate'
         }, {
           name: '产品上限期限',
+          rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'termUpperLimit'
         }, {
           name: '产品下限期限',
+          rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'termLowerLimit'
         }, {
           name: '起购金额上限',
+          rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'amountUpperLimit'
         }, {
           name: '起购金额下限',
+          rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'amountLowerLimit'
         }, {
           name: '备注',
@@ -119,6 +119,7 @@ export default {
         }],
         options: {
           submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
+          submitRow: true,
           defaultRules: {
             required: true,
             message: '必填',
@@ -126,7 +127,7 @@ export default {
           }, //表单默认校验规则
           inline: true, //输入框是否在一行内
           labelWidth: "130px",
-          submitName: '搜索' //提交按钮文字
+          submitName: '确定' //提交按钮文字
         }
       },
       //表格配置
@@ -144,22 +145,12 @@ export default {
         }, {
           name: '加息年利率(%)',
           type: 'number',
-          rules: {
-            type: 'number',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
+          rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'appendYearRate'
         }, {
           name: '加息天利率(%)',
           type: 'number',
-          rules: {
-            type: 'number',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
+          rules: {type: 'number',required: true,message: '必填',trigger: 'blur'},
           key: 'appendDayRate'
         }, {
           name: '加息有效天数',
@@ -167,22 +158,12 @@ export default {
         }, {
           name: '有效期开始',
           type: "date",
-          rules: {
-            type: 'date',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
+          rules: {type: 'date',required: true,message: '必填',trigger: 'blur'},
           key: 'beginDate'
         }, {
           name: '有效期截止',
           type: "date",
-          rules: {
-            type: 'date',
-            required: true,
-            message: '必填',
-            trigger: 'blur'
-          },
+          rules: {type: 'date',required: true,message: '必填',trigger: 'blur'},
           key: 'endDate'
         }, {
           name: '是否上架',
@@ -263,6 +244,7 @@ export default {
             console.log();
           }
       }],
+      dataListUrl: '../../../static/act_vip_append_list.json',
       newRowUrl: '/interface/act/add_act_vip_append.do', //表格全部数据请求地址
       updateRowUrl: "/interface/act/modify_act_vip_append.do", //更新列表的行链接
       deleteRowUrl: "/interface/act/modify_act_vip_append_onsale.do", //更新列表的行链接
@@ -277,6 +259,9 @@ export default {
     BaseForm,
     BaseTable //富文本组件
   },
+  created() {
+      this.getTableData();
+  },
   methods: {
     getRows(value) {
       this.selectedTableRows = value;
@@ -285,20 +270,24 @@ export default {
     searchCallBack(res) {
       console.log('searchCallBack');
       console.log(res);
+      this.getTableData();
+    },
+    getTableData() {//初始化表格数据
       let self = this;
-      self.$axios.get("../../../static/act_vip_append_list.json", {
+      self.$axios.get(self.dataListUrl, {
         page: self.page,
         rows: self.rows,
       }).then((res) => {
-        self.tableData = res.data;
+        this.tableData = res.data;
       })
     },
-    celDBClick(value) {
+    rowDBClick(value) {
         this.$refs.myTable.getData();
-      console.log(value);
+        console.log(value);
     },
     dialogCallBack(res) {
       console.log('dialogCallBack');
+      this.dialogVisible = false;
       console.log(res);
     }
   }

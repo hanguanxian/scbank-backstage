@@ -42,31 +42,20 @@
                 columns:  self.childTableColumns,
                 options: self.childTableOptions,
                 tableActions: self.childTableActions,
-                dataListUrl: self.childTableOptions.dataListUrl,
                 page:  self.childTableOptions.page || 1,
                 rows:  self.childTableOptions.rows || 50,
-                multipleSelection: [], //选中的行
-                tableData: []
+                multipleSelection: [] //选中的行
             }
         },
-        watch: {
+        computed: {
             tableData: function(){
                 return this.childTableData
             }
         },
         created() {
-          this.getData();//进入页面获取数据
         },
         methods: {
-            getData() {//初始化表格数据
-              let self = this;
-              self.$axios.get(self.dataListUrl, {
-                page: self.page,
-                rows: self.rows,
-              }).then((res) => {
-                self.tableData = res.data;
-              })
-            },
+
             handleCurrentChange(val) {//翻页
               this.page = val;
               this.getData();

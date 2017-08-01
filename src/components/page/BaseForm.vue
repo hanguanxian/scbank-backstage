@@ -31,9 +31,16 @@
                   <el-input v-model="baseForm[item.key]" :placeholder="options.showPlaceholder == false ? '' : item.placeholder"></el-input>
             </template>
           </el-form-item>
-          <el-form-item>
-            <el-button :icon="options.submitIcon" @click="onSubmit('baseForm')">{{ submitName || '确定' }}</el-button>
-          </el-form-item>
+          <template v-if="options.submitRow">
+              <el-form-item style="display: block; text-align: center;">
+                <el-button :icon="options.submitIcon" @click="onSubmit('baseForm')">{{ submitName || '确定' }}</el-button>
+              </el-form-item>
+          </template>
+          <template v-else>
+              <el-form-item>
+                <el-button :icon="options.submitIcon" @click="onSubmit('baseForm')">{{ submitName || '确定' }}</el-button>
+              </el-form-item>
+          </template>
         </el-form>
     </div>
 </template>

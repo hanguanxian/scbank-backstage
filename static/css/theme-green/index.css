@@ -425,12 +425,12 @@
 }
 
 .el-pager li:hover {
-    color: #00d1b2
+    color: #6FAED9
 }
 
 .el-pager li.active {
-    border-color: #00d1b2;
-    background-color: #00d1b2;
+    border-color: #6FAED9;
+    background-color: #6FAED9;
     color: #fff;
     cursor: default
 }
