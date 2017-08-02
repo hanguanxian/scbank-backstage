@@ -12,7 +12,6 @@
         :child-table-options="tableConfig.tableOptions"
         :child-table-actions="tableConfig.tableActions"
         :child-table-data="tableData"
-        @selectedRows="getRows"
         @cellClick="cellClickd"
         @pageChange="pageChanged">
         <!-- 顶部工具栏 -->
@@ -57,7 +56,7 @@ export default {
                 {name: '是否上架',placeholder: '是否上架',type: 'select',selectOptions: [{label: "是",value: "1"},{label: "否",value: "0"}],key: 'isOnsale'},
                 {name: '时间范围',type: 'daterange',placeholder: '时间范围',daterange: [],beginkey: 'beginDate', endkey: 'endDate'}],
         options: {
-          submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
+          submitUrl: "/interface/act/act_vip_append_list.do", //新建的链接
           submitIcon: "search",//搜索按钮
           formClass: 'query-form', //向表单添加样式
           showLabel: false, //是否显示label标签
@@ -126,7 +125,7 @@ export default {
         }],
         options: {
           submitUrl: "/interface/act/add_act_vip_append.do", //新建的链接
-          submitRow: true,
+          submitRow: true,//提交按钮是否单独占一行
           defaultRules: {
             required: true,
             message: '必填',
@@ -209,23 +208,44 @@ export default {
             event(row) {
               console.log('编辑');
               console.log(row);
-              self.dialogVisible = true;
-              self.dialogForm.options.submitUrl = self.updateRowUrl;
-              self.dialogFormData = row;
+              if(row.isOnsale!='否'){
+ 			      self.$message.error('已上架活动不可以修改');
+         	  } else {
+                  self.dialogVisible = true;
+                  self.dialogForm.options.submitUrl = self.updateRowUrl;
+                  self.msg = "修改固收加息活动成功";
+                  self.dialogFormData = row;
+              }
             }
           },{
             name: "上架",
             icon: "fa-hand-o-up",
             event(row) {
               console.log('上架');
-              console.log(row);
+              let data = {
+				"actAutoId":row.actAutoId,
+				"onsale":1
+		      }
+              self.$axios.post(self.dialogForm.options.submitUrl, data).then((res) => {
+                  self.$message.success('上架成功');
+              }).catch(function (error) {
+                  self.$message.error('上架失败');
+              });
             }
           }, {
             name: "下架",
             icon: "fa-hand-o-down",
             event(row) {
               console.log('下架');
-              console.log(row);
+              let data = {
+				"actAutoId":row.actAutoId,
+				"onsale":0
+		      }
+              self.$axios.post(self.dialogForm.options.submitUrl, data).then((res) => {
+                  self.$message.success('下架成功');
+              }).catch(function (error) {
+                  self.$message.error('下架失败');
+              });
             }
           }]
         },
@@ -237,23 +257,20 @@ export default {
           event() {
             console.log('新建');
             self.dialogForm.options.submitUrl = self.newRowUrl;
+            self.msg = "新增固收加息活动成功";
             self.dialogFormData = {};
             self.dialogVisible = true;
-          }
-        },{
-          name: "删除",
-          event() {
-            console.log('删除');
-            console.log();
           }
       }],
       dataListUrl: '../../../static/act_vip_append_list.json',
       newRowUrl: '/interface/act/add_act_vip_append.do', //表格全部数据请求地址
       updateRowUrl: "/interface/act/modify_act_vip_append.do", //更新列表的行链接
+      onsaleUrl: "/interface/act/modify_act_vip_append_onsale.do",
       deleteRowUrl: "/interface/act/modify_act_vip_append_onsale.do", //更新列表的行链接
       dialogFormData: {},//弹出框formData
       selectedTableRows:[],//选中的table 行
       tableData: [],//让搜索框的数据赋值到表格
+      msg: '',
       tablePage: 1,
       tableRows: 50,
       dialogVisible: false
@@ -268,22 +285,29 @@ export default {
       this.getTableData();
   },
   methods: {
-    getRows(value) {
-      this.selectedTableRows = value;
-      console.log(value);
+    searchCallBack(formData) {//搜索事件
+      const self = this;
+      let data = {
+        "actAutoId":"",
+        "isOnsale": formData.isOnsale || -1,
+        "startCreateTime": formData.beginDate || "",
+        "endCreateTime": formData.endDate || "",
+        page: self.tablePage,
+        rows: self.tableRows
+      }
+      self.$axios.post(self.searchForm.options.submitUrl, data).then((res) => {
+          console.log(res);
+          self.getTableData();
+      }).catch(function (error) {
+          self.$message.error('搜索失败');
+      });
     },
-    searchCallBack(res) {
-      console.log('searchCallBack');
-      console.log(res);
-      this.getTableData();
-    },
-    pageChanged(value) {
-        console.log(value);
+    pageChanged(value) {//翻页的事件
         this.tablePage = value;
         this.getTableData();
     },
     getTableData() {//初始化表格数据
-      let self = this;
+      const self = this;
       self.$axios.get(self.dataListUrl, {
         page: self.tablePage,
         rows: self.tableRows,
@@ -291,13 +315,28 @@ export default {
         this.tableData = res.data;
       })
     },
-    cellClickd(value) {
+    cellClickd(value) {//选中单格的事件
         console.log(value);
+        if(value) {
+            this.$message(value + '');
+        }
     },
-    dialogCallBack(res) {
+    dialogCallBack(value) {//弹出框的提交事件
       console.log('dialogCallBack');
-      this.dialogVisible = false;
-      console.log(res);
+      const self = this;
+    //   let formData = new FormData();
+    //   for (let it in value) {
+    //     formData.append(it,value[it]);
+    //   }
+    //   let config = {headers: {'Content-Type': 'application/x-www-form-urlencoded'}};
+
+      self.dialogVisible = false;
+      self.$axios.post(self.dialogForm.options.submitUrl, self.$qs.stringify(value)).then((res) => {
+          self.$message.success(self.msg);
+          this.getTableData();
+      }).catch(function (error) {
+          self.$message.error('失败');
+      });
     }
   }
 }
