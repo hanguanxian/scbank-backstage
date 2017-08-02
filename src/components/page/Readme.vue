@@ -1,6 +1,6 @@
 <template>
     <div>
-        <img style="width: 100%;" src='../../../static/images/jingyuan.png' />
+        <img style="width: 100%;max-width: 800px;" src='../../../static/images/jingyuan.png' />
     </div>
 </template>
 

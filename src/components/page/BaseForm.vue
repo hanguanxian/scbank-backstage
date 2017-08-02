@@ -5,9 +5,9 @@
             :key="index"
             :label="options.showLabel == false ? '' : item.name"
             :prop="item.key"
-            :rules="item.rules == undefined ? defaultRules : item.rules">
+            :rules="item.rules == undefined ? options.defaultRules : item.rules">
             <template v-if="item.type == 'date'">
-                  <el-date-picker type="date" v-model="baseForm[item.key]" style="width: 100%;" :placeholder="options.showPlaceholder == false ? '' : item.placeholder"></el-date-picker>
+                  <el-date-picker type="date" :default-value="new Date()" v-model="baseForm[item.key]" style="width: 100%;" :placeholder="options.showPlaceholder == false ? '' : item.placeholder"></el-date-picker>
             </template>
             <template v-else-if="item.type == 'daterange'">
                   <el-date-picker type="daterange" v-model="item.daterange" @change="daterangeChange(item)" style="width: 100%;" :placeholder="options.showPlaceholder == false ? '' : item.placeholder" :picker-options="pickerOptions"></el-date-picker>
@@ -33,12 +33,12 @@
           </el-form-item>
           <template v-if="options.submitRow">
               <el-form-item style="display: block; text-align: center;">
-                <el-button :icon="options.submitIcon" @click="onSubmit('baseForm')">{{ submitName || '确定' }}</el-button>
+                <el-button :icon="options.submitIcon" @click="onSubmit('baseForm')">{{ childFormOptions.submitName || '确定' }}</el-button>
               </el-form-item>
           </template>
           <template v-else>
               <el-form-item>
-                <el-button :icon="options.submitIcon" @click="onSubmit('baseForm')">{{ submitName || '确定' }}</el-button>
+                <el-button :icon="options.submitIcon" @click="onSubmit('baseForm')">{{ childFormOptions.submitName || '确定' }}</el-button>
               </el-form-item>
           </template>
         </el-form>
@@ -67,8 +67,6 @@ Date.prototype.Format = function (fmt) { //时间format 函数
         data: function(){
             return {
                 items: this.childFormItems,
-                submitName: this.childFormOptions.submitName,
-                defaultRules: this.childFormOptions.defaultRules,
                 options: this.childFormOptions,
                 pickerOptions: {//搜索区域时间快捷键配置
                   shortcuts: [{
@@ -103,11 +101,8 @@ Date.prototype.Format = function (fmt) { //时间format 函数
           quillEditor,//富文本组件
         },
         computed: {
-            baseForm(){
+            baseForm: function(){
                 return this.childFormData || {};
-            },
-            editor() {
-                return this.$refs.myTextEditor.quillEditor;
             }
         },
         methods: {
@@ -132,19 +127,20 @@ Date.prototype.Format = function (fmt) { //时间format 函数
                 self.setFormData();
                 self.$refs[formName].validate((valid) => {
                   if (valid) {
-                      var form = {};
+                      let form = {};
                       self.items.filter(function(item) {
                           for (var key in self.baseForm) {
                               if(key == item.key || key == item.beginkey || key == item.endkey) {
                                   if(item.type == "date" || item.type == "daterange") {
                                        form[key] = new Date(self.baseForm[key]).Format("yyyy-MM-dd");
+                                       self.baseForm[key] = form[key];
                                   } else {
                                        form[key] = self.baseForm[key];
                                   }
                               }
                           }
                       })
-                      this.baseForm = form;
+                      self.baseForm = form;
                       self.$emit('submitCallBack', form);
                     //   self.$axios.post(self.childFormOptions.submitUrl, self.baseForm).then((res) => {
                     //     self.$message.success('提交成功！');

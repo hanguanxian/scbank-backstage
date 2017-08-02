@@ -27,7 +27,7 @@
             <slot name="bottomBtns"></slot>
         </div>
         <div class="pagination">
-          <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
+          <el-pagination @current-change="pageChange" layout="prev, pager, next" :total="1000">
           </el-pagination>
         </div>
     </div>
@@ -42,8 +42,6 @@
                 columns:  self.childTableColumns,
                 options: self.childTableOptions,
                 tableActions: self.childTableActions,
-                page:  self.childTableOptions.page || 1,
-                rows:  self.childTableOptions.rows || 50,
                 multipleSelection: [] //选中的行
             }
         },
@@ -55,10 +53,8 @@
         created() {
         },
         methods: {
-
-            handleCurrentChange(val) {//翻页
-              this.page = val;
-              this.getData();
+            pageChange(val) {//翻页
+              this.$emit('pageChange', val);
             },
             cellDBClick(row, column, cell){
                 this.$emit('cellDBClick', row[column.property],cell);

@@ -12,7 +12,9 @@
         :child-table-options="tableConfig.tableOptions"
         :child-table-actions="tableConfig.tableActions"
         :child-table-data="tableData"
-        @selectedRows="getRows" @rowDBClick="rowDBClick">
+        @selectedRows="getRows"
+        @cellClick="cellClickd"
+        @pageChange="pageChanged">
         <!-- 顶部工具栏 -->
         <div slot="topBtns">
             <group-btns :child-btns="topBtnsConfig"></group-btns>
@@ -227,11 +229,7 @@ export default {
             }
           }]
         },
-        tableOptions: {
-          page: 1,
-          rows: 50,
-          dataListUrl: '../../../static/act_vip_append_list.json' //表格全部数据请求地址
-        }
+        tableOptions: {}
       },
       //表格顶部按钮区域
       topBtnsConfig: [{
@@ -256,6 +254,8 @@ export default {
       dialogFormData: {},//弹出框formData
       selectedTableRows:[],//选中的table 行
       tableData: [],//让搜索框的数据赋值到表格
+      tablePage: 1,
+      tableRows: 50,
       dialogVisible: false
     }
   },
@@ -277,17 +277,21 @@ export default {
       console.log(res);
       this.getTableData();
     },
+    pageChanged(value) {
+        console.log(value);
+        this.tablePage = value;
+        this.getTableData();
+    },
     getTableData() {//初始化表格数据
       let self = this;
       self.$axios.get(self.dataListUrl, {
-        page: self.page,
-        rows: self.rows,
+        page: self.tablePage,
+        rows: self.tableRows,
       }).then((res) => {
         this.tableData = res.data;
       })
     },
-    rowDBClick(value) {
-        this.$refs.myTable.getData();
+    cellClickd(value) {
         console.log(value);
     },
     dialogCallBack(res) {
